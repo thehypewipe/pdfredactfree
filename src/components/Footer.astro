@@ -14,6 +14,16 @@ const year = new Date().getFullYear();
         <span>PDF Redact Free</span>
       </a>
       <p class="footer-tagline">Redact PDF files privately in your browser.<br/>Zero uploads. Zero storage. Zero cost.</p>
+      <div class="footer-bmc">
+        <a 
+          href="https://buymeacoffee.com/thehypewipe" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-amber-400 text-zinc-950 hover:bg-amber-300 transition-colors shadow-sm"
+        >
+          ☕ Buy me a coffee
+        </a>
+      </div>
     </div>
 
     <nav class="footer-cols" aria-label="Footer navigation">
@@ -93,6 +103,13 @@ const year = new Date().getFullYear();
   }
   :global([data-theme="dark"]) .footer-tagline {
     color: #d4d4d8;
+  }
+
+  .footer-bmc {
+    margin-top: var(--space-md);
+  }
+  .footer-bmc a {
+    text-decoration: none;
   }
 
   .footer-cols {
