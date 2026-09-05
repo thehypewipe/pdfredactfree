@@ -1,0 +1,126 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Contact PDF Redact Free — Support & Feedback"
+  description="Contact PDF Redact Free for support, feedback, or general inquiries. We're a lean privacy-first tool and typically respond within 72 hours."
+  canonical="https://redactfree.com/contact"
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="container">
+        <p class="mono-eyebrow">Get in Touch</p>
+        <h1 class="display-xl page-title">Contact Us</h1>
+        <p class="body-lg page-sub">We're a small, privacy-first team. We read every message and typically respond within 72 hours.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container contact-layout">
+
+        <div class="contact-cards">
+          <div class="feature-card contact-card">
+            <div class="contact-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <h2 class="heading-md">General Support</h2>
+            <p class="body-md contact-desc">Questions about using the tool, bug reports, or feature requests.</p>
+            <a href="mailto:hello@redactfree.com?subject=Support%20Inquiry" class="btn-primary contact-btn">hello@redactfree.com</a>
+          </div>
+
+          <div class="feature-card contact-card">
+            <div class="contact-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <h2 class="heading-md">Privacy Inquiries</h2>
+            <p class="body-md contact-desc">Questions about our privacy policy, data practices, or GDPR/CCPA concerns.</p>
+            <a href="mailto:hello@redactfree.com?subject=Privacy%20Inquiry" class="btn-secondary contact-btn">hello@redactfree.com</a>
+          </div>
+
+          <div class="feature-card contact-card">
+            <div class="contact-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </div>
+            <h2 class="heading-md">Legal & Partnerships</h2>
+            <p class="body-md contact-desc">Partnership inquiries, advertising, DMCA, or legal correspondence.</p>
+            <a href="mailto:hello@redactfree.com?subject=Legal%20Inquiry" class="btn-secondary contact-btn">hello@redactfree.com</a>
+          </div>
+        </div>
+
+        <div class="contact-info">
+          <div class="feature-card">
+            <p class="mono-eyebrow" style="margin-bottom:16px;">Common Questions</p>
+            <div class="info-items">
+              <div class="info-item">
+                <h3 class="heading-md info-title">Is PDF Redact Free really free?</h3>
+                <p class="body-md" style="color:var(--color-body);">Yes, completely. No plans, no limits, no credit card ever required.</p>
+              </div>
+              <div class="info-item">
+                <h3 class="heading-md info-title">Can you process my PDF for me?</h3>
+                <p class="body-md" style="color:var(--color-body);">No — by design. Our tool only runs in your browser. We never receive or access your files. This is a feature, not a limitation.</p>
+              </div>
+              <div class="info-item">
+                <h3 class="heading-md info-title">How do I report a bug?</h3>
+                <p class="body-md" style="color:var(--color-body);">Email hello@redactfree.com with the browser/OS you're using and a description of the issue. Do not attach any sensitive PDFs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .page-hero {
+    background: var(--color-canvas);
+    padding: var(--space-4xl) 0 var(--space-3xl);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .page-title { color: var(--color-ink); margin: var(--space-md) 0; }
+  .page-sub { color: var(--color-body); max-width: 480px; }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: var(--space-3xl);
+    align-items: start;
+  }
+
+  .contact-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .contact-card { display: flex; flex-direction: column; gap: var(--space-sm); }
+  .contact-icon { color: var(--color-ink); }
+  .contact-desc { color: var(--color-body); }
+  .contact-btn { align-self: flex-start; margin-top: var(--space-xs); }
+
+  .info-items { display: flex; flex-direction: column; gap: var(--space-lg); }
+  .info-item { padding-bottom: var(--space-lg); border-bottom: 1px solid var(--color-hairline-soft); }
+  .info-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .info-title { margin-bottom: var(--space-xs); }
+
+  @media (max-width: 768px) {
+    .contact-layout { grid-template-columns: 1fr; }
+  }
+</style>

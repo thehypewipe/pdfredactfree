@@ -1,0 +1,2615 @@
+---
+import { defaultLang, type SupportedLocale, ui } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  currentLang?: SupportedLocale;
+}
+
+const { currentLang = (Astro.currentLocale as SupportedLocale) || defaultLang } = Astro.props;
+const t = useTranslations(currentLang);
+const currentDict = ui[currentLang] || ui['en'];
+---
+
+<div class="editor-wrapper">
+  <!-- Error Banner -->
+  <div id="pdf-error" class="error-banner hidden"></div>
+
+  <!-- Dropzone -->
+  <label id="pdf-dropzone" for="pdf-file-input" class="dropzone-box">
+    <input type="file" id="pdf-file-input" accept="application/pdf" style="display: none;" />
+    <div class="drop-icon">+</div>
+    <p class="drop-title" data-i18n="dropTitle">{t('dropTitle')}</p>
+    <p class="drop-subtitle">or <span class="drop-browse" data-i18n="dropBrowse">{t('dropBrowse')}</span></p>
+    <span class="drop-badge" data-i18n="badgeText">{t('badgeText')}</span>
+  </label>
+
+  <!-- Editor Workspace -->
+  <div id="pdf-workspace" class="workspace-container hidden">
+    <!-- Visual Workflow Stepper -->
+    <nav class="workflow-stepper" aria-label="Redaction progress">
+      <ol class="stepper-list">
+        <li class="step-item active" id="step-item-1">
+          <button type="button" class="step-btn" id="btn-step-1" title="Step 1: Blackout">
+            <span class="step-badge">1</span>
+            <span class="step-label" data-i18n="step1Blackout">{t('step1Blackout')}</span>
+          </button>
+        </li>
+        <li class="step-divider" aria-hidden="true"></li>
+        <li class="step-item" id="step-item-2">
+          <button type="button" class="step-btn" id="btn-step-2" title="Step 2: Edit & Review">
+            <span class="step-badge">2</span>
+            <span class="step-label" data-i18n="step2Edit">{t('step2Edit')}</span>
+          </button>
+        </li>
+        <li class="step-divider" aria-hidden="true"></li>
+        <li class="step-item" id="step-item-3">
+          <button type="button" class="step-btn" id="btn-step-3" title="Step 3: Export PDF">
+            <span class="step-badge">3</span>
+            <span class="step-label" data-i18n="step3Export">{t('step3Export')}</span>
+          </button>
+        </li>
+        <li class="step-divider" aria-hidden="true"></li>
+        <li class="step-item" id="step-item-4">
+          <button type="button" class="step-btn" id="btn-step-4" title="Step 4: Share">
+            <span class="step-badge">4</span>
+            <span class="step-label" data-i18n="step4Share">{t('step4Share')}</span>
+          </button>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Compact Symmetrical 2-Row Toolbar -->
+    <div class="toolbar-box">
+      <!-- Row 1: Unified Tool & Navigation Controls -->
+      <div class="toolbar-row row-tools-unified">
+        <!-- Left Group: New Document -->
+        <div class="toolbar-group toolbar-group-left">
+          <button id="btn-new-file" type="button" class="tool-btn btn-new" title="Upload a new document">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span class="btn-label" data-i18n="btnNew">{t('btnNew')}</span>
+          </button>
+        </div>
+
+        <!-- Center Group: Undo, Zoom Controls, Delete, and Clear -->
+        <div class="toolbar-group toolbar-group-center">
+          <button id="btn-undo" type="button" class="tool-btn btn-undo" title="Undo last action (Ctrl+Z)">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2m0 0l-4-4m4 4l4-4"/></svg>
+            <span class="btn-label" data-i18n="btnUndo">{t('btnUndo')}</span>
+          </button>
+
+          <div class="zoom-pill">
+            <button id="btn-zoom-out" type="button" class="zoom-btn" title="Zoom Out" aria-label="Zoom Out">−</button>
+            <button id="btn-zoom-in" type="button" class="zoom-btn" title="Zoom In" aria-label="Zoom In">+</button>
+          </div>
+
+          <button id="btn-delete-selected" type="button" class="tool-btn btn-danger hidden" title="Delete selected box (Backspace / Delete)">
+            <span>🗑️</span>
+            <span class="btn-label" data-i18n="btnDelete">{t('btnDelete')}</span>
+          </button>
+
+          <button id="btn-clear" type="button" class="tool-btn btn-danger" title="Clear all boxes on page">
+            <span data-i18n="btnClear">{t('btnClear')}</span>
+          </button>
+        </div>
+
+        <!-- Right Group: Scroll Toggle & Pagination -->
+        <div class="toolbar-group toolbar-group-right">
+          <button id="btn-mode-scroll" type="button" class="tool-btn btn-scroll-toggle" title="Toggle 1-finger page scroll for touch screens (Shortcut: S)">
+            <span class="scroll-icon">✋</span>
+            <span class="btn-label" data-i18n="btnScroll">{t('btnScroll')}</span>
+          </button>
+
+          <div class="pagination-pill">
+            <button id="btn-prev" type="button" class="page-nav-btn" title="Previous Page" aria-label="Previous Page">◀</button>
+            <span id="page-indicator" class="page-text">1 / 1</span>
+            <button id="btn-next" type="button" class="page-nav-btn" title="Next Page" aria-label="Next Page">▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Dedicated Primary Workflow CTAs -->
+      <div class="toolbar-row-cta">
+        <!-- Step 1 Bottom Action -->
+        <div class="row-step-action" id="step-action-1">
+          <button id="btn-next-step-1" type="button" class="tool-btn btn-primary btn-step-nav" title="Proceed to Review and Edit">
+            <span data-i18n="btnNextStep1"><Fragment set:html={t('btnNextStep1')} /></span>
+          </button>
+        </div>
+
+        <!-- Step 2 Bottom Action Row -->
+        <div class="row-step-action hidden" id="step-action-2">
+          <button id="btn-back-step-2" type="button" class="tool-btn btn-step-back" title="Return to Blackout mode">
+            <span data-i18n="btnBackStep2"><Fragment set:html={t('btnBackStep2')} /></span>
+          </button>
+          <button id="btn-next-step-2" type="button" class="tool-btn btn-primary btn-step-nav" title="Proceed to Export PDF">
+            <span data-i18n="btnNextStep2"><Fragment set:html={t('btnNextStep2')} /></span>
+          </button>
+        </div>
+
+        <!-- Step 3 Bottom Action Row -->
+        <div class="row-step-action row-step-export hidden" id="step-action-3">
+          <button id="btn-download" type="button" class="tool-btn btn-primary btn-download-cta" data-i18n="btnDownload">
+            {t('btnDownload')}
+          </button>
+          <button id="btn-back-step-3" type="button" class="btn-text-link" title="Return to Edit and Review">
+            <span data-i18n="btnBackStep3"><Fragment set:html={t('btnBackStep3')} /></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Tool Status Pill -->
+    <div id="status-pill" class="status-indicator" data-i18n="step1Status">
+      <Fragment set:html={t('step1Status')} />
+    </div>
+
+    <!-- Canvas Workspace -->
+    <div class="canvas-viewport" id="canvas-wrapper">
+      <canvas id="pdf-render-canvas"></canvas>
+      <canvas id="blackout-overlay-canvas"></canvas>
+      <div id="touch-loupe" class="touch-loupe hidden">
+        <canvas id="loupe-canvas" width="140" height="140"></canvas>
+        <div class="loupe-crosshair"></div>
+      </div>
+      <!-- Center Workspace Loading Overlay (Fail-Safe Feedback) -->
+      <div id="export-loading-overlay" class="export-overlay hidden" aria-live="polite" aria-label="Exporting PDF">
+        <div class="export-spinner-card">
+          <div class="export-spinner-ring"></div>
+          <p id="export-status-title" class="export-status-title">Exporting secure PDF...</p>
+          <p id="export-status-page" class="export-status-page">Zero server uploads · True vector rasterization</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Synchronized Shortcuts Bar -->
+  <div class="shortcuts-legend">
+    <span class="legend-tag"><b>B</b> <span data-i18n="step1Blackout">{t('step1Blackout')}</span></span>
+    <span class="legend-tag"><b>E</b> <span data-i18n="step2Edit">{t('step2Edit')}</span></span>
+    <span class="legend-tag"><b>S</b> <span data-i18n="btnScroll">{t('btnScroll')}</span></span>
+    <span class="legend-tag"><b>Del</b> <span data-i18n="legendDelete">{t('legendDelete')}</span></span>
+    <span class="legend-tag"><b>Ctrl + Z</b> <span data-i18n="legendUndo">{t('legendUndo')}</span></span>
+    <span class="legend-tag"><b>← / →</b> <span data-i18n="legendPages">{t('legendPages')}</span></span>
+  </div>
+
+  <!-- Post-Download Completion & Viral Share Modal (Step 4) -->
+  <div id="share-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="share-modal-title" aria-describedby="share-modal-desc">
+    <div class="modal-card">
+      <button type="button" class="modal-close-btn" id="btn-modal-close-icon" aria-label="Close modal">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="modal-celebrate-icon" aria-hidden="true">🎉</div>
+      <h2 id="share-modal-title" class="modal-title" data-i18n="shareModalTitle">{t('shareModalTitle')}</h2>
+      <p id="share-modal-desc" class="modal-subtitle" data-i18n="shareModalDesc">
+        {t('shareModalDesc')}
+      </p>
+
+      <!-- 1-Click Viral Sharing Buttons -->
+      <div class="modal-share-grid">
+        <a
+          id="share-link-x"
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(t('shareXText'))}&url=https%3A%2F%2Fredactfree.com&via=thehypewipe`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="share-btn share-btn-x"
+          title="Share Redact Free on X"
+        >
+          <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          <span data-i18n="shareOnX">{t('shareOnX')}</span>
+        </a>
+
+        <a
+          id="share-link-reddit"
+          href={`https://www.reddit.com/submit?url=https%3A%2F%2Fredactfree.com&title=${encodeURIComponent(t('shareRedditTitle'))}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="share-btn share-btn-reddit"
+          title="Share Redact Free on Reddit"
+        >
+          <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.703zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.688-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.096.35.35 0 0 0 0 .476c.706.707 1.802 1.078 2.947 1.078 1.145 0 2.24-.37 2.946-1.078a.335.335 0 0 0 0-.476.335.335 0 0 0-.476 0c-.57.57-1.47.876-2.47.876s-1.9-.306-2.47-.876a.335.335 0 0 0-.246-.096z"/>
+          </svg>
+          <span data-i18n="shareOnReddit">{t('shareOnReddit')}</span>
+        </a>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="modal-footer-actions">
+        <button type="button" class="btn-modal-action btn-modal-new" id="btn-modal-new">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          <span data-i18n="modalRedactAnother">{t('modalRedactAnother')}</span>
+        </button>
+        <button type="button" class="btn-modal-action btn-modal-return" id="btn-modal-close">
+          <span data-i18n="modalBackToDoc">{t('modalBackToDoc')}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .hidden {
+    display: none !important;
+  }
+
+  .editor-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+  }
+
+  .error-banner {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    margin-bottom: 1.5rem;
+    background-color: #fef2f2;
+    border: 1px solid #f87171;
+    color: #991b1b;
+    font-size: 0.875rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  /* Clean Light Dropzone */
+  .dropzone-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 360px;
+    padding: 2.5rem 1.25rem;
+    background-color: #ffffff;
+    border: 2px dashed #d4d4d8;
+    border-radius: 20px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);
+  }
+
+  .dropzone-box:hover {
+    border-color: #18181b;
+    background-color: #fafafa;
+  }
+
+  .drop-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f5;
+    border: 1px solid #e4e4e7;
+    color: #18181b;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .drop-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #18181b;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .drop-subtitle {
+    font-size: 0.875rem;
+    color: #3f3f46;
+    margin: 0 0 1.25rem 0;
+  }
+
+  .drop-browse {
+    color: #09090b;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    font-weight: 600;
+  }
+
+  .drop-badge {
+    font-size: 0.75rem;
+    font-family: monospace;
+    color: #27272a;
+    background-color: #f4f4f5;
+    border: 1px solid #d4d4d8;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-weight: 500;
+  }
+
+  /* Visual Workflow Stepper */
+  .workflow-stepper {
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+    padding: 0.5rem 0.75rem;
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    box-sizing: border-box;
+  }
+
+  .stepper-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .step-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0.4rem;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .step-btn:hover {
+    background-color: #f4f4f5;
+  }
+
+  .step-badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: #e4e4e7;
+    color: #52525b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .step-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #71717a;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  /* Active Step */
+  .step-item.active .step-badge {
+    background-color: #18181b;
+    color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.12);
+  }
+
+  .step-item.active .step-label {
+    color: #09090b;
+    font-weight: 700;
+  }
+
+  /* Completed Step */
+  .step-item.completed .step-badge {
+    background-color: #059669;
+    color: #ffffff;
+  }
+
+  .step-item.completed .step-label {
+    color: #059669;
+  }
+
+  /* Divider line between steps */
+  .step-divider {
+    flex: 1;
+    height: 2px;
+    background-color: #e4e4e7;
+    margin: 0 0.5rem;
+    border-radius: 2px;
+    transition: background-color 0.2s ease;
+  }
+
+  .step-item.completed + .step-divider {
+    background-color: #059669;
+  }
+
+  /* Clean Structured 4-Row Toolbar */
+  .workspace-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+  }
+
+  /* Compact Symmetrical 2-Row Toolbar */
+  .toolbar-box {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 660px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 14px;
+    padding: 0.65rem 0.75rem;
+    gap: 0.65rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+  }
+
+  /* Row 1: Unified Tools & Navigation Controls */
+  .row-tools-unified {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .toolbar-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .toolbar-group-left {
+    flex-shrink: 0;
+  }
+
+  .toolbar-group-center {
+    flex-shrink: 0;
+    justify-content: center;
+  }
+
+  .toolbar-group-right {
+    flex-shrink: 0;
+    justify-content: flex-end;
+  }
+
+  /* Row 1 Compact Heights: Exactly 36px */
+  .btn-new,
+  .btn-undo,
+  .btn-scroll-toggle,
+  .tool-btn,
+  .pagination-pill,
+  .zoom-pill {
+    height: 36px;
+    box-sizing: border-box;
+  }
+
+  .btn-new {
+    padding: 0 0.75rem;
+    font-weight: 600;
+  }
+
+  .btn-undo {
+    padding: 0 0.65rem;
+  }
+
+  .btn-scroll-toggle {
+    padding: 0 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 8px;
+    background-color: #f4f4f5;
+    border: 1px solid #e4e4e7;
+    color: #52525b;
+    transition: all 0.15s ease;
+  }
+
+  .btn-scroll-toggle:hover {
+    background-color: #e4e4e7;
+    color: #18181b;
+  }
+
+  .btn-scroll-toggle.btn-active {
+    background-color: #2563eb !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+  }
+
+  .pagination-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f4f4f5;
+    border: 1px solid #e4e4e7;
+    border-radius: 9999px;
+    padding: 2px 4px;
+  }
+
+  .page-nav-btn {
+    background: transparent;
+    border: none;
+    font-size: 0.75rem;
+    padding: 0 0.45rem;
+    height: 100%;
+    cursor: pointer;
+    color: #18181b;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+  }
+
+  .page-nav-btn:hover {
+    background-color: #e4e4e7;
+  }
+
+  .page-text {
+    font-size: 0.82rem;
+    font-family: monospace;
+    font-weight: 600;
+    color: #18181b;
+    padding: 0 0.35rem;
+    white-space: nowrap;
+  }
+
+  .zoom-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f4f4f5;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .zoom-btn {
+    background: transparent;
+    border: none;
+    width: 30px;
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #18181b;
+    transition: background-color 0.15s ease;
+  }
+
+  .zoom-btn:hover {
+    background-color: #e4e4e7;
+  }
+
+  /* General Tool Button */
+  .tool-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    background-color: #f4f4f5;
+    color: #18181b;
+    border: 1px solid #e4e4e7;
+    padding: 0 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .tool-btn:hover {
+    background-color: #e4e4e7;
+  }
+
+  .tool-btn:active {
+    transform: scale(0.97);
+  }
+
+  .btn-danger {
+    color: #dc2626;
+    border-color: #fecaca;
+    background-color: #fef2f2;
+    font-weight: 600;
+  }
+
+  .btn-danger:hover {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
+  }
+
+  /* Row 2: Dedicated Primary Workflow CTAs */
+  .toolbar-row-cta {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .row-step-action {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .btn-step-nav {
+    flex: 1;
+    width: 100%;
+    height: 38px;
+    background-color: #18181b !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 9px;
+    font-size: 0.88rem;
+    font-weight: 600 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+  }
+
+  .btn-step-nav:hover {
+    background-color: #27272a !important;
+  }
+
+  .btn-step-back {
+    flex: 1;
+    height: 38px;
+    background-color: #f4f4f5;
+    color: #18181b;
+    border: 1px solid #e4e4e7;
+    border-radius: 9px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box;
+    transition: all 0.15s ease;
+  }
+
+  .btn-step-back:hover {
+    background-color: #e4e4e7;
+  }
+
+  .row-step-export {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.2rem 0;
+  }
+
+  /* Step 3: Download Button Hard-Locked at 160px */
+  .btn-download-cta {
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+    height: 38px !important;
+    background-color: #18181b !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 9px;
+    font-size: 0.88rem;
+    font-weight: 600 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .btn-download-cta:hover {
+    background-color: #27272a !important;
+  }
+
+  .btn-text-link {
+    background: transparent;
+    border: none;
+    color: #71717a;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+  }
+
+  .btn-text-link:hover {
+    color: #18181b;
+  }
+
+  .btn-download-cta:disabled,
+  .btn-primary:disabled,
+  .tool-btn:disabled {
+    opacity: 0.85;
+    cursor: progress !important;
+    pointer-events: none;
+  }
+
+  .icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .btn-spinner {
+    width: 15px;
+    height: 15px;
+    animation: btnSpin 0.75s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes btnSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Center Workspace Loading Overlay */
+  .export-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(9, 9, 11, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 80;
+    padding: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .export-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .export-spinner-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    max-width: 360px;
+    width: 100%;
+    transform: scale(0.96);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .export-overlay.active .export-spinner-card {
+    transform: scale(1);
+  }
+
+  .export-spinner-ring {
+    width: 44px;
+    height: 44px;
+    border: 3.5px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: btnSpin 0.8s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+    margin-bottom: 1.25rem;
+  }
+
+  .export-status-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.4;
+  }
+
+  .export-status-page {
+    font-size: 0.8rem;
+    font-family: 'Geist Mono', monospace;
+    color: #a1a1aa;
+    margin: 0;
+  }
+
+  :global(html:not(.dark)) .export-spinner-card {
+    background: #ffffff;
+    border-color: #e4e4e7;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  :global(html:not(.dark)) .export-spinner-ring {
+    border: 3.5px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #2563eb;
+  }
+
+  :global(html:not(.dark)) .export-status-title {
+    color: #09090b;
+  }
+
+  :global(html:not(.dark)) .export-status-page {
+    color: #52525b;
+  }
+
+  :global(html:not(.dark)) .export-overlay {
+    background: rgba(255, 255, 255, 0.86);
+  }
+
+  .btn-danger {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: #fecaca !important;
+  }
+
+  .btn-danger:hover {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+  }
+
+  .status-indicator {
+    font-size: 0.82rem;
+    color: #27272a;
+    font-family: monospace;
+    font-weight: 500;
+  }
+
+  .status-indicator b {
+    color: #09090b;
+    font-weight: 700;
+  }
+
+  /* Canvas Viewport */
+  .canvas-viewport {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+    overflow: hidden;
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+    touch-action: none;
+    line-height: 0;
+    font-size: 0;
+  }
+
+  #pdf-render-canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    vertical-align: top;
+    margin: 0 auto;
+  }
+
+  #blackout-overlay-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  /* Floating Touch Magnifier Loupe */
+  .touch-loupe {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 3px solid #2563eb;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+    background-color: var(--color-canvas, #ffffff);
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 60;
+    transform: translate(-50%, -100%);
+    will-change: left, top;
+  }
+
+  #loupe-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .loupe-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    transform: translate(-50%, -50%);
+    border: 1.5px solid #2563eb;
+    pointer-events: none;
+  }
+
+  /* Post-Download Viral Celebration Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(9, 9, 11, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .modal-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 18px;
+    padding: 2rem 1.75rem 1.75rem;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    box-sizing: border-box;
+    transform: scale(0.95);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .modal-backdrop.active .modal-card {
+    transform: scale(1);
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #71717a;
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+
+  .modal-close-btn:hover {
+    background-color: #f4f4f5;
+    color: #09090b;
+  }
+
+  .modal-celebrate-icon {
+    font-size: 2.75rem;
+    line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #09090b;
+    margin-bottom: 0.5rem;
+    line-height: 1.35;
+  }
+
+  .modal-subtitle {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #52525b;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-share-grid {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+
+  .share-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 42px;
+    padding: 0 1rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+  }
+
+  .share-btn-x {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+  }
+
+  .share-btn-x:hover {
+    background-color: #18181b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  }
+
+  .share-btn-reddit {
+    background-color: #ff4500;
+    color: #ffffff;
+    border: 1px solid #ff4500;
+  }
+
+  .share-btn-reddit:hover {
+    background-color: #e03d00;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 69, 0, 0.25);
+  }
+
+  .share-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .modal-footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid #f4f4f5;
+  }
+
+  .btn-modal-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    height: 38px;
+    padding: 0 1rem;
+    border-radius: 9px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+  }
+
+  .btn-modal-new {
+    background-color: #f4f4f5;
+    color: #18181b;
+    border: 1px solid #e4e4e7;
+  }
+
+  .btn-modal-new:hover {
+    background-color: #e4e4e7;
+  }
+
+  .btn-modal-return {
+    background: transparent;
+    color: #71717a;
+    border: none;
+  }
+
+  .btn-modal-return:hover {
+    color: #09090b;
+    background-color: #f4f4f5;
+  }
+
+  /* --- Dark Theme Support for Editor --- */
+  :global(html.dark) .dropzone-box {
+    background-color: #121215;
+    border-color: #27272a;
+  }
+  :global(html.dark) .dropzone-box:hover {
+    background-color: #18181b;
+    border-color: #52525b;
+  }
+  :global(html.dark) .drop-icon {
+    background-color: #18181b;
+    border-color: #27272a;
+    color: #ffffff;
+  }
+  :global(html.dark) .drop-title { color: #ffffff; }
+  :global(html.dark) .drop-subtitle { color: #d4d4d8; }
+  :global(html.dark) .drop-browse { color: #ffffff; }
+  :global(html.dark) .drop-badge {
+    background-color: #18181b;
+    border-color: #27272a;
+    color: #e4e4e7;
+  }
+  :global(html.dark) .toolbar-box {
+    background-color: #121215;
+    border-color: #27272a;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+  :global(html.dark) .tool-btn {
+    background-color: #18181b;
+    border-color: #27272a;
+    color: #e4e4e7;
+  }
+  :global(html.dark) .tool-btn:hover {
+    background-color: #27272a;
+    color: #ffffff;
+  }
+  :global(html.dark) .pagination-pill,
+  :global(html.dark) .zoom-pill {
+    background-color: #18181b;
+    border-color: #27272a;
+  }
+  :global(html.dark) .page-nav-btn,
+  :global(html.dark) .zoom-btn {
+    color: #e4e4e7;
+  }
+  :global(html.dark) .page-nav-btn:hover,
+  :global(html.dark) .zoom-btn:hover {
+    background-color: #27272a;
+  }
+  :global(html.dark) .page-text {
+    color: #ffffff;
+  }
+  :global(html.dark) .btn-scroll-toggle {
+    background-color: #18181b;
+    border-color: #27272a;
+    color: #a1a1aa;
+  }
+  :global(html.dark) .btn-scroll-toggle:hover {
+    color: #ffffff;
+    background-color: #27272a;
+  }
+  :global(html.dark) .btn-scroll-toggle.btn-active {
+    background-color: #2563eb !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  }
+  :global(html.dark) .btn-step-nav {
+    background-color: #ffffff !important;
+    color: #09090b !important;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);
+  }
+  :global(html.dark) .btn-step-nav:hover {
+    background-color: #e4e4e7 !important;
+  }
+  :global(html.dark) .btn-step-back {
+    background-color: #18181b;
+    border-color: #27272a;
+    color: #e4e4e7;
+  }
+  :global(html.dark) .btn-step-back:hover {
+    background-color: #27272a;
+    color: #ffffff;
+  }
+  :global(html.dark) .btn-download-cta {
+    background-color: #ffffff !important;
+    color: #09090b !important;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);
+  }
+  :global(html.dark) .btn-download-cta:hover {
+    background-color: #e4e4e7 !important;
+  }
+  :global(html.dark) .btn-text-link {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .btn-text-link:hover {
+    color: #ffffff;
+  }
+  :global(html.dark) .btn-danger {
+    color: #f87171;
+    border-color: #450a0a;
+    background-color: #1c0f13;
+  }
+  :global(html.dark) .btn-danger:hover {
+    background-color: #2a1218;
+    border-color: #7f1d1d;
+  }
+  :global(html.dark) .canvas-viewport {
+    background-color: #18181b;
+    border-color: #27272a;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  }
+  :global(html.dark) .status-indicator { color: #e4e4e7; }
+  :global(html.dark) .status-indicator b { color: #ffffff; }
+  :global(html.dark) .shortcuts-legend { color: #d4d4d8; }
+  :global(html.dark) .workflow-stepper {
+    background-color: #121215;
+    border-color: #27272a;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  :global(html.dark) .step-badge {
+    background-color: #27272a;
+    color: #a1a1aa;
+  }
+  :global(html.dark) .step-label {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .step-btn:hover {
+    background-color: #18181b;
+  }
+  :global(html.dark) .step-item.active .step-badge {
+    background-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+  :global(html.dark) .step-item.active .step-label {
+    color: #ffffff;
+  }
+  :global(html.dark) .step-item.completed .step-badge {
+    background-color: #10b981;
+    color: #ffffff;
+  }
+  :global(html.dark) .step-item.completed .step-label {
+    color: #10b981;
+  }
+  :global(html.dark) .step-divider {
+    background-color: #27272a;
+  }
+  :global(html.dark) .step-item.completed + .step-divider {
+    background-color: #10b981;
+  }
+  :global(html.dark) .modal-card {
+    background-color: #121215;
+    border-color: #27272a;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  }
+  :global(html.dark) .modal-close-btn {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .modal-close-btn:hover {
+    background-color: #18181b;
+    color: #ffffff;
+  }
+  :global(html.dark) .modal-title {
+    color: #ffffff;
+  }
+  :global(html.dark) .modal-subtitle {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .share-btn-x {
+    background-color: #ffffff;
+    color: #09090b;
+    border-color: #ffffff;
+  }
+  :global(html.dark) .share-btn-x:hover {
+    background-color: #e4e4e7;
+  }
+  :global(html.dark) .modal-footer-actions {
+    border-top-color: #27272a;
+  }
+  :global(html.dark) .btn-modal-new {
+    background-color: #18181b;
+    color: #ffffff;
+    border-color: #27272a;
+  }
+  :global(html.dark) .btn-modal-new:hover {
+    background-color: #27272a;
+  }
+  :global(html.dark) .btn-modal-return {
+    color: #a1a1aa;
+  }
+  :global(html.dark) .btn-modal-return:hover {
+    color: #ffffff;
+    background-color: #18181b;
+  }
+  :global(html.dark) .legend-tag {
+    background-color: #121215;
+    border-color: #27272a;
+    color: #e4e4e7;
+  }
+  :global(html.dark) .legend-tag b { color: #ffffff; }
+
+  .shortcuts-legend {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #3f3f46;
+  }
+
+  .legend-tag {
+    background-color: #ffffff;
+    border: 1px solid #d4d4d8;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    color: #27272a;
+    font-weight: 500;
+  }
+
+  /* Breathable Mobile Responsive Scale */
+  @media (max-width: 640px) {
+    .editor-wrapper {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .workspace-container {
+      gap: 0.45rem;
+    }
+
+    .workflow-stepper {
+      padding: 0.4rem 0.5rem;
+    }
+
+    .step-btn {
+      padding: 0.15rem;
+      gap: 0;
+    }
+
+    .step-label {
+      display: none;
+    }
+
+    .step-badge {
+      width: 24px;
+      height: 24px;
+      font-size: 0.76rem;
+    }
+
+    .step-divider {
+      margin: 0 0.35rem;
+    }
+
+    .toolbar-box {
+      padding: 0.55rem;
+      gap: 0.5rem;
+      border-radius: 12px;
+    }
+
+    .row-tools-unified {
+      gap: 0.35rem;
+    }
+
+    .toolbar-group {
+      gap: 0.25rem;
+    }
+
+    .tool-btn,
+    .btn-new,
+    .btn-undo,
+    .btn-scroll-toggle,
+    .pagination-pill,
+    .zoom-pill {
+      height: 34px;
+    }
+
+    .btn-new {
+      padding: 0 0.55rem;
+    }
+
+    .btn-undo {
+      padding: 0 0.5rem;
+    }
+
+    .btn-scroll-toggle {
+      font-size: 0.76rem;
+      padding: 0 0.45rem;
+    }
+
+    .tool-btn {
+      font-size: 0.78rem;
+      padding: 0 0.5rem;
+    }
+
+    .page-text {
+      font-size: 0.78rem;
+      padding: 0 0.25rem;
+    }
+
+    .page-nav-btn {
+      padding: 0 0.35rem;
+    }
+
+    .zoom-btn {
+      width: 26px;
+      font-size: 0.95rem;
+    }
+
+    .btn-step-nav,
+    .btn-step-back {
+      height: 36px;
+      font-size: 0.82rem;
+      padding: 0 0.5rem;
+    }
+
+    .btn-download-cta {
+      height: 36px !important;
+      font-size: 0.84rem;
+    }
+
+    .status-indicator {
+      font-size: 0.74rem;
+      padding: 0.25rem 0.5rem;
+      margin: 0.05rem 0;
+    }
+
+    .canvas-viewport {
+      max-width: 92vw;
+      border-radius: 10px;
+    }
+
+    .shortcuts-legend {
+      margin-top: 0.85rem;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+    }
+
+    .modal-card {
+      padding: 1.5rem 1.25rem 1.25rem;
+    }
+
+    .modal-share-grid {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .row-tools-unified {
+      gap: 0.25rem;
+    }
+
+    .toolbar-group {
+      gap: 0.2rem;
+    }
+
+    .row-tools-unified .btn-label {
+      display: none;
+    }
+
+    .btn-new,
+    .btn-undo,
+    .btn-scroll-toggle,
+    .tool-btn {
+      padding: 0 0.45rem;
+    }
+
+    .zoom-btn {
+      width: 24px;
+    }
+
+    .page-nav-btn {
+      padding: 0 0.3rem;
+    }
+
+    .page-text {
+      font-size: 0.74rem;
+      padding: 0 0.2rem;
+    }
+  }
+
+  .legend-tag b {
+    color: #09090b;
+    font-weight: 700;
+  }
+</style>
+
+<script is:inline define:vars={{ initialDict: currentDict }}>
+  (function () {
+    window.__pdfDict = window.__pdfDict || initialDict;
+    let pdfDoc = null;
+    let currentPage = 1;
+    let pageCount = 1;
+    let scale = 1.3;
+
+    let currentMode = 'blackout'; // 'blackout' | 'edit'
+
+    let redactions = {}; // pageNum -> Array of { x, y, w, h, cw, ch }
+    let selectedBoxIndex = -1;
+    let activeHandle = null; // 'nw', 'ne', 'se', 'sw', 'n', 's', 'e', 'w', 'move'
+    let dragStartX = 0, dragStartY = 0;
+    let boxInitialState = null;
+    let isDrawingNew = false;
+    let drawStartX = 0, drawStartY = 0;
+
+    const HANDLE_SIZE = 9;
+
+    // Dynamic On-Demand Script Loader for PDF.js and pdf-lib
+    let pdfLibrariesPromise = null;
+
+    function loadPdfLibraries() {
+      if (pdfLibrariesPromise) return pdfLibrariesPromise;
+
+      if (window.pdfjsLib && window.PDFLib) {
+        if (window.pdfjsLib.GlobalWorkerOptions && !window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+        return Promise.resolve();
+      }
+
+      pdfLibrariesPromise = new Promise(function (resolve, reject) {
+        let pdfJsLoaded = Boolean(window.pdfjsLib);
+        let pdfLibLoaded = Boolean(window.PDFLib);
+
+        function checkDone() {
+          if (pdfJsLoaded && pdfLibLoaded) {
+            if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            }
+            resolve();
+          }
+        }
+
+        if (!pdfJsLoaded) {
+          const s1 = document.createElement('script');
+          s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+          s1.async = true;
+          s1.onload = function () {
+            pdfJsLoaded = true;
+            checkDone();
+          };
+          s1.onerror = function () {
+            reject(new Error('Failed to load PDF.js'));
+          };
+          document.head.appendChild(s1);
+        }
+
+        if (!pdfLibLoaded) {
+          const s2 = document.createElement('script');
+          s2.src = 'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+          s2.async = true;
+          s2.onload = function () {
+            pdfLibLoaded = true;
+            checkDone();
+          };
+          s2.onerror = function () {
+            reject(new Error('Failed to load pdf-lib'));
+          };
+          document.head.appendChild(s2);
+        }
+
+        checkDone();
+      });
+
+      return pdfLibrariesPromise;
+    }
+
+    // 100% On-Demand Script Injection (Triggered strictly on user intent)
+    function init() {
+      const input = document.getElementById('pdf-file-input');
+      const dropzone = document.getElementById('pdf-dropzone');
+
+      if (!input) return;
+
+      // Pre-warm on user interaction (hover, dragenter, click, touch)
+      function onUserIntent() {
+        loadPdfLibraries().catch(function () {});
+      }
+
+      input.addEventListener('focus', onUserIntent, { once: true });
+      input.addEventListener('change', function (e) {
+        onUserIntent();
+        const file = e.target.files && e.target.files[0];
+        if (file) handleFile(file);
+      });
+
+      if (dropzone) {
+        dropzone.addEventListener('click', onUserIntent, { once: true });
+        dropzone.addEventListener('touchstart', onUserIntent, { passive: true, once: true });
+        dropzone.addEventListener('dragenter', function (e) {
+          e.preventDefault();
+          onUserIntent();
+          dropzone.style.borderColor = '#ffffff';
+        });
+        dropzone.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          onUserIntent();
+          dropzone.style.borderColor = '#ffffff';
+        });
+        dropzone.addEventListener('dragleave', function (e) {
+          e.preventDefault();
+          dropzone.style.borderColor = '#27272a';
+        });
+        dropzone.addEventListener('drop', function (e) {
+          e.preventDefault();
+          dropzone.style.borderColor = '#27272a';
+          const file = e.dataTransfer && e.dataTransfer.files[0];
+          if (file) handleFile(file);
+        });
+      }
+
+      // Document & Navigation Controls
+      document.getElementById('btn-new-file')?.addEventListener('click', resetToDropzone);
+      document.getElementById('btn-prev')?.addEventListener('click', () => stepPage(-1));
+      document.getElementById('btn-next')?.addEventListener('click', () => stepPage(1));
+      document.getElementById('btn-mode-scroll')?.addEventListener('click', toggleScrollMode);
+      document.getElementById('btn-delete-selected')?.addEventListener('click', deleteSelectedBox);
+      document.getElementById('btn-undo')?.addEventListener('click', undoLastAction);
+      document.getElementById('btn-zoom-in')?.addEventListener('click', () => { scale += 0.2; renderPage(currentPage); });
+      document.getElementById('btn-zoom-out')?.addEventListener('click', () => { if (scale > 0.6) { scale -= 0.2; renderPage(currentPage); } });
+      document.getElementById('btn-clear')?.addEventListener('click', () => {
+        redactions[currentPage] = [];
+        selectedBoxIndex = -1;
+        updateDeleteButton();
+        drawCanvasOverlay();
+      });
+
+      // Step Action Button Listeners
+      document.getElementById('btn-next-step-1')?.addEventListener('click', () => goToStep(2));
+      document.getElementById('btn-back-step-2')?.addEventListener('click', () => goToStep(1));
+      document.getElementById('btn-next-step-2')?.addEventListener('click', () => goToStep(3));
+      document.getElementById('btn-back-step-3')?.addEventListener('click', () => goToStep(2));
+      document.getElementById('btn-download')?.addEventListener('click', downloadFlattenedRedacted);
+
+      // Workflow Stepper Direct Header Navigation
+      document.getElementById('btn-step-1')?.addEventListener('click', () => goToStep(1));
+      document.getElementById('btn-step-2')?.addEventListener('click', () => goToStep(2));
+      document.getElementById('btn-step-3')?.addEventListener('click', () => goToStep(3));
+      document.getElementById('btn-step-4')?.addEventListener('click', () => {
+        if (hasDownloaded) openShareModal();
+        else downloadFlattenedRedacted();
+      });
+
+      // Post-Download Viral Share Modal Controls
+      document.getElementById('btn-modal-close-icon')?.addEventListener('click', closeShareModal);
+      document.getElementById('btn-modal-close')?.addEventListener('click', closeShareModal);
+      document.getElementById('btn-modal-new')?.addEventListener('click', () => {
+        closeShareModal();
+        resetToDropzone();
+      });
+
+      const modalBackdrop = document.getElementById('share-modal');
+      modalBackdrop?.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) closeShareModal();
+      });
+
+      attachCanvasEvents();
+      attachShortcuts();
+    }
+
+    let currentStep = 1; // 1: Blackout, 2: Review & Edit, 3: Export & Download, 4: Share
+    let hasDownloaded = false;
+
+    function updateWorkflowStep(stepNumber) {
+      for (let i = 1; i <= 4; i++) {
+        const item = document.getElementById(`step-item-${i}`);
+        if (!item) continue;
+        item.classList.remove('active', 'completed');
+        if (i < stepNumber) {
+          item.classList.add('completed');
+        } else if (i === stepNumber) {
+          item.classList.add('active');
+        }
+      }
+    }
+
+    function goToStep(step) {
+      currentStep = step;
+      updateWorkflowStep(step);
+
+      const action1 = document.getElementById('step-action-1');
+      const action2 = document.getElementById('step-action-2');
+      const action3 = document.getElementById('step-action-3');
+      const statusPill = document.getElementById('status-pill');
+
+      action1?.classList.add('hidden');
+      action2?.classList.add('hidden');
+      action3?.classList.add('hidden');
+
+      if (step === 1) {
+        action1?.classList.remove('hidden');
+        setMode('blackout');
+        if (statusPill) {
+          statusPill.setAttribute('data-i18n', 'step1Status');
+          statusPill.innerHTML = window.__pdfDict?.step1Status || 'Step 1: <b>Blackout</b> (Draw with 1 finger • Use 2 fingers to scroll or tap ✋ Scroll)';
+        }
+      } else if (step === 2) {
+        action2?.classList.remove('hidden');
+        setMode('edit');
+        if (statusPill) {
+          statusPill.setAttribute('data-i18n', 'step2Status');
+          statusPill.innerHTML = window.__pdfDict?.step2Status || 'Step 2: <b>Review & Edit</b> (Tap any box to resize or move • 🗑️ to delete)';
+        }
+      } else if (step === 3) {
+        action3?.classList.remove('hidden');
+        setMode('review');
+        if (statusPill) {
+          statusPill.setAttribute('data-i18n', 'step3Status');
+          statusPill.innerHTML = window.__pdfDict?.step3Status || 'Step 3: <b>Export</b> (Inspect final preview and click Download PDF)';
+        }
+      } else if (step === 4) {
+        if (hasDownloaded) openShareModal();
+        else goToStep(3);
+      }
+    }
+
+    function toggleScrollMode() {
+      if (currentMode === 'scroll') {
+        if (currentStep === 1) setMode('blackout');
+        else if (currentStep === 2) setMode('edit');
+        else setMode('review');
+      } else {
+        setMode('scroll');
+      }
+    }
+
+    function openShareModal() {
+      const modal = document.getElementById('share-modal');
+      const overlay = document.getElementById('export-loading-overlay');
+      if (!modal) return;
+      // Prevent any modal overlap with loading overlay
+      if (overlay) {
+        overlay.classList.remove('active');
+        overlay.classList.add('hidden');
+      }
+      currentStep = 4;
+      updateWorkflowStep(4);
+      modal.classList.remove('hidden');
+      void modal.offsetHeight; // Force reflow for CSS transition
+      modal.classList.add('active');
+    }
+
+    function closeShareModal() {
+      const modal = document.getElementById('share-modal');
+      if (!modal) return;
+      modal.classList.remove('active');
+      setTimeout(function () {
+        modal.classList.add('hidden');
+        goToStep(3);
+      }, 250);
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      const sBtn = document.getElementById('btn-mode-scroll');
+      const statusPill = document.getElementById('status-pill');
+      const overlay = document.getElementById('blackout-overlay-canvas');
+      const wrapper = document.getElementById('canvas-wrapper');
+
+      sBtn?.classList.remove('btn-active');
+
+      if (mode === 'blackout') {
+        selectedBoxIndex = -1;
+        updateDeleteButton();
+        if (overlay) {
+          overlay.style.cursor = 'crosshair';
+          overlay.style.touchAction = 'none';
+        }
+        if (wrapper) wrapper.style.touchAction = 'none';
+      } else if (mode === 'edit') {
+        if (overlay) {
+          overlay.style.cursor = 'default';
+          overlay.style.touchAction = 'none';
+        }
+        if (wrapper) wrapper.style.touchAction = 'none';
+      } else if (mode === 'scroll') {
+        sBtn?.classList.add('btn-active');
+        selectedBoxIndex = -1;
+        updateDeleteButton();
+        if (statusPill) {
+          statusPill.setAttribute('data-i18n', 'modeScrollPill');
+          statusPill.innerHTML = window.__pdfDict?.modeScrollPill || 'Mode: <b>Scroll</b> (Swipe anywhere with 1 finger to navigate page)';
+        }
+        if (overlay) {
+          overlay.style.cursor = 'grab';
+          overlay.style.touchAction = 'pan-y pinch-zoom';
+        }
+        if (wrapper) wrapper.style.touchAction = 'pan-y pinch-zoom';
+      } else if (mode === 'review') {
+        selectedBoxIndex = -1;
+        updateDeleteButton();
+        if (overlay) {
+          overlay.style.cursor = 'default';
+          overlay.style.touchAction = 'pan-y pinch-zoom';
+        }
+        if (wrapper) wrapper.style.touchAction = 'pan-y pinch-zoom';
+      }
+      drawCanvasOverlay();
+    }
+
+    function updateDeleteButton() {
+      const delBtn = document.getElementById('btn-delete-selected');
+      if (!delBtn) return;
+      if (currentMode === 'edit' && selectedBoxIndex >= 0) {
+        delBtn.classList.remove('hidden');
+      } else {
+        delBtn.classList.add('hidden');
+      }
+    }
+
+    function deleteSelectedBox() {
+      const list = redactions[currentPage] || [];
+      if (selectedBoxIndex >= 0 && selectedBoxIndex < list.length) {
+        list.splice(selectedBoxIndex, 1);
+        selectedBoxIndex = -1;
+        updateDeleteButton();
+        drawCanvasOverlay();
+      }
+    }
+
+    function undoLastAction() {
+      const list = redactions[currentPage] || [];
+      if (list.length > 0) {
+        list.pop();
+        selectedBoxIndex = -1;
+        updateDeleteButton();
+        drawCanvasOverlay();
+      }
+    }
+
+    async function handleFile(file) {
+      const errBox = document.getElementById('pdf-error');
+      if (errBox) errBox.classList.add('hidden');
+
+      const dropTitle = document.querySelector('#pdf-dropzone .drop-title');
+      const originalTitle = dropTitle ? dropTitle.innerHTML : '';
+      if (dropTitle && (!window.pdfjsLib || !window.PDFLib)) {
+        dropTitle.innerHTML = '⚡ Preparing editor...';
+      }
+
+      try {
+        await loadPdfLibraries();
+      } catch (err) {
+        if (dropTitle) dropTitle.innerHTML = originalTitle;
+        if (errBox) {
+          errBox.textContent = 'Could not load PDF processing engine. Please check your internet connection.';
+          errBox.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (dropTitle) dropTitle.innerHTML = originalTitle;
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const typedarray = new Uint8Array(reader.result);
+
+        window.pdfjsLib.getDocument(typedarray).promise.then(function (pdf) {
+          pdfDoc = pdf;
+          pageCount = pdf.numPages;
+          currentPage = 1;
+          redactions = {};
+          selectedBoxIndex = -1;
+
+          // Responsive initial scaling for breathable mobile & desktop fit
+          pdf.getPage(1).then(function (firstPage) {
+            const unscaled = firstPage.getViewport({ scale: 1.0 });
+            const isMobile = window.innerWidth <= 640;
+            const isTablet = window.innerWidth <= 1024;
+            const maxW = isMobile ? Math.min(window.innerWidth * 0.90, 560) : (isTablet ? Math.min(window.innerWidth * 0.92, 780) : 920);
+
+            if (unscaled.width > maxW) {
+              scale = Math.max(0.5, parseFloat((maxW / unscaled.width).toFixed(2)));
+            } else {
+              scale = isMobile ? 1.0 : 1.3;
+            }
+
+            document.getElementById('pdf-dropzone').classList.add('hidden');
+            document.getElementById('pdf-workspace').classList.remove('hidden');
+            goToStep(1);
+
+            renderPage(currentPage);
+          }).catch(function () {
+            document.getElementById('pdf-dropzone').classList.add('hidden');
+            document.getElementById('pdf-workspace').classList.remove('hidden');
+            goToStep(1);
+            renderPage(currentPage);
+          });
+        }).catch(function (err) {
+          console.error('PDF render error:', err);
+          if (errBox) {
+            errBox.textContent = 'Could not render this PDF. Please verify it is a valid document.';
+            errBox.classList.remove('hidden');
+          }
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function renderPage(num) {
+      if (!pdfDoc) return;
+      pdfDoc.getPage(num).then(function (page) {
+        const viewport = page.getViewport({ scale: scale });
+        const canvas = document.getElementById('pdf-render-canvas');
+        const overlay = document.getElementById('blackout-overlay-canvas');
+        const wrapper = document.getElementById('canvas-wrapper');
+        const indicator = document.getElementById('page-indicator');
+
+        const renderWidth = Math.floor(viewport.width);
+        const renderHeight = Math.floor(viewport.height);
+
+        canvas.width = renderWidth;
+        canvas.height = renderHeight;
+        overlay.width = renderWidth;
+        overlay.height = renderHeight;
+
+        // Dynamically adjust wrapper dimensions to strictly fit page content
+        if (wrapper) {
+          wrapper.style.width = 'fit-content';
+          wrapper.style.maxWidth = '100%';
+          wrapper.style.aspectRatio = `${renderWidth} / ${renderHeight}`;
+        }
+
+        const ctx = canvas.getContext('2d');
+        page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+          if (indicator) indicator.textContent = currentPage + ' / ' + pageCount;
+          drawCanvasOverlay();
+        });
+      });
+    }
+
+    function getCanvasCoords(e) {
+      const overlay = document.getElementById('blackout-overlay-canvas');
+      const rect = overlay.getBoundingClientRect();
+      const touchObj = (e.touches && e.touches.length > 0) ? e.touches[0] : (e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0] : e);
+      const clientX = touchObj.clientX;
+      const clientY = touchObj.clientY;
+      const rawX = clientX - rect.left;
+      const rawY = clientY - rect.top;
+      return {
+        x: rawX * (overlay.width / rect.width),
+        y: rawY * (overlay.height / rect.height),
+        rawX: rawX,
+        rawY: rawY
+      };
+    }
+
+    function updateTouchLoupe(e) {
+      const isTouch = (e.touches && e.touches.length > 0) || (e.changedTouches && e.changedTouches.length > 0);
+      if (!isTouch) return;
+
+      const loupe = document.getElementById('touch-loupe');
+      const loupeCanvas = document.getElementById('loupe-canvas');
+      const renderCanvas = document.getElementById('pdf-render-canvas');
+      const overlayCanvas = document.getElementById('blackout-overlay-canvas');
+      if (!loupe || !loupeCanvas || !renderCanvas || !overlayCanvas) return;
+
+      const p = getCanvasCoords(e);
+
+      loupe.classList.remove('hidden');
+      loupe.style.left = p.rawX + 'px';
+      loupe.style.top = (p.rawY - 45) + 'px';
+
+      const ctx = loupeCanvas.getContext('2d');
+      ctx.clearRect(0, 0, 140, 140);
+
+      const zoom = 2.0;
+      const srcW = 140 / zoom;
+      const srcH = 140 / zoom;
+      const srcX = p.x - (srcW / 2);
+      const srcY = p.y - (srcH / 2);
+
+      ctx.drawImage(renderCanvas, srcX, srcY, srcW, srcH, 0, 0, 140, 140);
+      ctx.drawImage(overlayCanvas, srcX, srcY, srcW, srcH, 0, 0, 140, 140);
+    }
+
+    function hideTouchLoupe() {
+      const loupe = document.getElementById('touch-loupe');
+      if (loupe) loupe.classList.add('hidden');
+    }
+
+    function getNormalizedBox(box, overlay) {
+      return {
+        x: box.x * (overlay.width / box.cw),
+        y: box.y * (overlay.height / box.ch),
+        w: box.w * (overlay.width / box.cw),
+        h: box.h * (overlay.height / box.ch)
+      };
+    }
+
+    function getHandlePositions(b) {
+      const half = HANDLE_SIZE / 2;
+      return {
+        nw: { x: b.x - half, y: b.y - half, cursor: 'nwse-resize' },
+        ne: { x: b.x + b.w - half, y: b.y - half, cursor: 'nesw-resize' },
+        se: { x: b.x + b.w - half, y: b.y + b.h - half, cursor: 'nwse-resize' },
+        sw: { x: b.x - half, y: b.y + b.h - half, cursor: 'nesw-resize' },
+        n:  { x: b.x + b.w / 2 - half, y: b.y - half, cursor: 'ns-resize' },
+        s:  { x: b.x + b.w / 2 - half, y: b.y + b.h - half, cursor: 'ns-resize' },
+        w:  { x: b.x - half, y: b.y + b.h / 2 - half, cursor: 'ew-resize' },
+        e:  { x: b.x + b.w - half, y: b.y + b.h / 2 - half, cursor: 'ew-resize' }
+      };
+    }
+
+    function hitTestHandle(p, box, overlay) {
+      const b = getNormalizedBox(box, overlay);
+      const handles = getHandlePositions(b);
+      for (const [key, h] of Object.entries(handles)) {
+        if (p.x >= h.x - 3 && p.x <= h.x + HANDLE_SIZE + 3 &&
+            p.y >= h.y - 3 && p.y <= h.y + HANDLE_SIZE + 3) {
+          return key;
+        }
+      }
+      return null;
+    }
+
+    function hitTestBox(p, box, overlay) {
+      const b = getNormalizedBox(box, overlay);
+      return p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
+    }
+
+    function attachCanvasEvents() {
+      const overlay = document.getElementById('blackout-overlay-canvas');
+      if (!overlay) return;
+
+      const onStart = (e) => {
+        if (currentMode === 'scroll' || currentMode === 'review') return;
+        const p = getCanvasCoords(e);
+        const list = redactions[currentPage] || [];
+
+        if (currentMode === 'blackout') {
+          isDrawingNew = true;
+          drawStartX = p.x;
+          drawStartY = p.y;
+          return;
+        }
+
+        // EDIT MODE: Check handle first, then box
+        if (selectedBoxIndex >= 0 && selectedBoxIndex < list.length) {
+          const handle = hitTestHandle(p, list[selectedBoxIndex], overlay);
+          if (handle) {
+            activeHandle = handle;
+            dragStartX = p.x;
+            dragStartY = p.y;
+            const b = getNormalizedBox(list[selectedBoxIndex], overlay);
+            boxInitialState = { ...b };
+            return;
+          }
+        }
+
+        let foundIndex = -1;
+        for (let i = list.length - 1; i >= 0; i--) {
+          if (hitTestBox(p, list[i], overlay)) {
+            foundIndex = i;
+            break;
+          }
+        }
+
+        selectedBoxIndex = foundIndex;
+        updateDeleteButton();
+
+        if (foundIndex >= 0) {
+          activeHandle = 'move';
+          dragStartX = p.x;
+          dragStartY = p.y;
+          const b = getNormalizedBox(list[foundIndex], overlay);
+          boxInitialState = { ...b };
+        }
+
+        drawCanvasOverlay();
+      };
+
+      const onMove = (e) => {
+        if (currentMode === 'scroll' || currentMode === 'review') return;
+        const p = getCanvasCoords(e);
+        const list = redactions[currentPage] || [];
+
+        // Cursor logic in Edit mode
+        if (currentMode === 'edit' && !activeHandle) {
+          if (selectedBoxIndex >= 0 && selectedBoxIndex < list.length) {
+            const h = hitTestHandle(p, list[selectedBoxIndex], overlay);
+            if (h) {
+              const handles = getHandlePositions(getNormalizedBox(list[selectedBoxIndex], overlay));
+              overlay.style.cursor = handles[h].cursor;
+              return;
+            }
+          }
+          let overBox = false;
+          for (let i = list.length - 1; i >= 0; i--) {
+            if (hitTestBox(p, list[i], overlay)) {
+              overBox = true;
+              break;
+            }
+          }
+          overlay.style.cursor = overBox ? 'move' : 'default';
+        }
+
+        // Drawing a new box in Blackout mode
+        if (isDrawingNew && currentMode === 'blackout') {
+          drawCanvasOverlay();
+          const ctx = overlay.getContext('2d');
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(
+            Math.min(drawStartX, p.x),
+            Math.min(drawStartY, p.y),
+            Math.abs(p.x - drawStartX),
+            Math.abs(p.y - drawStartY)
+          );
+          return;
+        }
+
+        // Resizing or moving in Edit mode
+        if (activeHandle && selectedBoxIndex >= 0 && boxInitialState) {
+          const dx = p.x - dragStartX;
+          const dy = p.y - dragStartY;
+          let newBox = { ...boxInitialState };
+
+          if (activeHandle === 'move') {
+            newBox.x += dx;
+            newBox.y += dy;
+          } else if (activeHandle === 'se') {
+            newBox.w = Math.max(10, boxInitialState.w + dx);
+            newBox.h = Math.max(10, boxInitialState.h + dy);
+          } else if (activeHandle === 'sw') {
+            const newW = Math.max(10, boxInitialState.w - dx);
+            newBox.x = boxInitialState.x + (boxInitialState.w - newW);
+            newBox.w = newW;
+            newBox.h = Math.max(10, boxInitialState.h + dy);
+          } else if (activeHandle === 'ne') {
+            const newH = Math.max(10, boxInitialState.h - dy);
+            newBox.y = boxInitialState.y + (boxInitialState.h - newH);
+            newBox.w = Math.max(10, boxInitialState.w + dx);
+            newBox.h = newH;
+          } else if (activeHandle === 'nw') {
+            const newW = Math.max(10, boxInitialState.w - dx);
+            const newH = Math.max(10, boxInitialState.h - dy);
+            newBox.x = boxInitialState.x + (boxInitialState.w - newW);
+            newBox.y = boxInitialState.y + (boxInitialState.h - newH);
+            newBox.w = newW;
+            newBox.h = newH;
+          } else if (activeHandle === 'e') {
+            newBox.w = Math.max(10, boxInitialState.w + dx);
+          } else if (activeHandle === 'w') {
+            const newW = Math.max(10, boxInitialState.w - dx);
+            newBox.x = boxInitialState.x + (boxInitialState.w - newW);
+            newBox.w = newW;
+          } else if (activeHandle === 's') {
+            newBox.h = Math.max(10, boxInitialState.h + dy);
+          } else if (activeHandle === 'n') {
+            const newH = Math.max(10, boxInitialState.h - dy);
+            newBox.y = boxInitialState.y + (boxInitialState.h - newH);
+            newBox.h = newH;
+          }
+
+          list[selectedBoxIndex] = {
+            x: newBox.x,
+            y: newBox.y,
+            w: newBox.w,
+            h: newBox.h,
+            cw: overlay.width,
+            ch: overlay.height
+          };
+
+          drawCanvasOverlay();
+        }
+      };
+
+      const onEnd = (e) => {
+        if (currentMode === 'scroll' || currentMode === 'review') return;
+        if (isDrawingNew && currentMode === 'blackout') {
+          isDrawingNew = false;
+          const p = getCanvasCoords(e.changedTouches ? e.changedTouches[0] : e);
+          const w = Math.abs(p.x - drawStartX);
+          const h = Math.abs(p.y - drawStartY);
+
+          if (w > 5 && h > 5) {
+            if (!redactions[currentPage]) redactions[currentPage] = [];
+            redactions[currentPage].push({
+              x: Math.min(drawStartX, p.x),
+              y: Math.min(drawStartY, p.y),
+              w: w,
+              h: h,
+              cw: overlay.width,
+              ch: overlay.height
+            });
+          }
+          drawCanvasOverlay();
+          return;
+        }
+
+        if (activeHandle) {
+          activeHandle = null;
+          boxInitialState = null;
+          drawCanvasOverlay();
+        }
+      };
+
+      overlay.addEventListener('mousedown', onStart);
+      overlay.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+
+      overlay.addEventListener('touchstart', (e) => {
+        // 1. Scroll or Review mode: let native browser 1-finger scroll happen naturally
+        if (currentMode === 'scroll' || currentMode === 'review') {
+          hideTouchLoupe();
+          return;
+        }
+
+        // 2. Multi-touch (2+ fingers): abort box creation, hide loupe, allow native scrolling/zooming
+        if (e.touches && e.touches.length > 1) {
+          isDrawingNew = false;
+          activeHandle = null;
+          hideTouchLoupe();
+          drawCanvasOverlay();
+          return;
+        }
+
+        // 3. Single finger in Blackout or Edit mode: prevent default page scroll and handle action
+        e.preventDefault();
+        onStart(e);
+        if (currentMode === 'blackout') {
+          updateTouchLoupe(e);
+        }
+      }, { passive: false });
+
+      overlay.addEventListener('touchmove', (e) => {
+        // 1. Scroll or Review mode: let native touch scrolling happen
+        if (currentMode === 'scroll' || currentMode === 'review') {
+          return;
+        }
+
+        // 2. Multi-touch: abort drawing and let browser handle native pinch/scroll
+        if (e.touches && e.touches.length > 1) {
+          if (isDrawingNew) {
+            isDrawingNew = false;
+            drawCanvasOverlay();
+          }
+          activeHandle = null;
+          hideTouchLoupe();
+          return;
+        }
+
+        // 3. Single finger: prevent page scroll while actively drawing or moving boxes
+        e.preventDefault();
+        onMove(e);
+        if (currentMode === 'blackout' && isDrawingNew) {
+          updateTouchLoupe(e);
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', (e) => {
+        if (currentMode === 'scroll' || currentMode === 'review') return;
+        onEnd(e);
+        hideTouchLoupe();
+      });
+
+      window.addEventListener('touchcancel', () => {
+        isDrawingNew = false;
+        activeHandle = null;
+        hideTouchLoupe();
+        drawCanvasOverlay();
+      });
+    }
+
+    function drawCanvasOverlay() {
+      const overlay = document.getElementById('blackout-overlay-canvas');
+      if (!overlay) return;
+      const ctx = overlay.getContext('2d');
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+      const list = redactions[currentPage] || [];
+
+      list.forEach(function (b, index) {
+        const nb = getNormalizedBox(b, overlay);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(nb.x, nb.y, nb.w, nb.h);
+
+        // Edit Mode: draw transform border and handles on selected box
+        if (currentMode === 'edit' && index === selectedBoxIndex) {
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(nb.x - 1, nb.y - 1, nb.w + 2, nb.h + 2);
+
+          const handles = getHandlePositions(nb);
+          ctx.fillStyle = '#ffffff';
+          ctx.strokeStyle = '#1d4ed8';
+          ctx.lineWidth = 1.5;
+
+          for (const h of Object.values(handles)) {
+            ctx.fillRect(h.x, h.y, HANDLE_SIZE, HANDLE_SIZE);
+            ctx.strokeRect(h.x, h.y, HANDLE_SIZE, HANDLE_SIZE);
+          }
+        }
+      });
+    }
+
+    function stepPage(delta) {
+      const next = currentPage + delta;
+      if (next >= 1 && next <= pageCount) {
+        currentPage = next;
+        selectedBoxIndex = -1;
+        updateDeleteButton();
+        renderPage(currentPage);
+      }
+    }
+
+    function resetToDropzone() {
+      closeShareModal();
+      hasDownloaded = false;
+      currentStep = 1;
+      updateWorkflowStep(1);
+      pdfDoc = null;
+      currentPage = 1;
+      pageCount = 1;
+      redactions = {};
+      selectedBoxIndex = -1;
+
+      const input = document.getElementById('pdf-file-input');
+      if (input) input.value = '';
+
+      const canvas = document.getElementById('pdf-render-canvas');
+      const overlay = document.getElementById('blackout-overlay-canvas');
+      if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+      if (overlay) overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+
+      document.getElementById('pdf-workspace')?.classList.add('hidden');
+      document.getElementById('pdf-dropzone')?.classList.remove('hidden');
+    }
+
+    function attachShortcuts() {
+      window.addEventListener('keydown', function (e) {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+
+        // B -> Step 1: Blackout Draw Mode
+        if ((e.key === 'b' || e.key === 'B') && !e.ctrlKey && !e.metaKey) {
+          goToStep(1);
+        }
+
+        // E -> Step 2: Review & Edit Mode
+        if ((e.key === 'e' || e.key === 'E') && !e.ctrlKey && !e.metaKey) {
+          goToStep(2);
+        }
+
+        // S -> Toggle Scroll / Pan Mode
+        if ((e.key === 's' || e.key === 'S') && !e.ctrlKey && !e.metaKey) {
+          toggleScrollMode();
+        }
+
+        // Delete / Backspace -> Delete Selected Box
+        if ((e.key === 'Delete' || e.key === 'Backspace') && currentMode === 'edit') {
+          e.preventDefault();
+          deleteSelectedBox();
+        }
+
+        // Ctrl + Z -> Undo
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+          e.preventDefault();
+          undoLastAction();
+        }
+
+        // Arrow navigation
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          stepPage(-1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          stepPage(1);
+        }
+
+        // Escape -> Close modal if open, otherwise deselect box
+        if (e.key === 'Escape') {
+          const shareModal = document.getElementById('share-modal');
+          if (shareModal && !shareModal.classList.contains('hidden')) {
+            closeShareModal();
+            return;
+          }
+          selectedBoxIndex = -1;
+          updateDeleteButton();
+          drawCanvasOverlay();
+        }
+      }, true);
+    }
+
+    // Fast Client-Side PDF Flattening & Binary JPEG Generation
+    async function downloadFlattenedRedacted() {
+      const btn = document.getElementById('btn-download');
+      const overlay = document.getElementById('export-loading-overlay');
+      const overlayTitle = document.getElementById('export-status-title');
+      const overlayPage = document.getElementById('export-status-page');
+      const shareModal = document.getElementById('share-modal');
+      if (!btn || !pdfDoc) return;
+
+      // 1. Ensure Step 4 viral modal is completely hidden during export
+      if (shareModal) {
+        shareModal.classList.remove('active');
+        shareModal.classList.add('hidden');
+      }
+
+      // Lock scroll position before export processing
+      const savedScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+      const originalHtml = btn.innerHTML;
+
+      // Keep user on Step 3 with active export spinner
+      updateWorkflowStep(3);
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+      btn.style.cursor = 'progress';
+      btn.innerHTML = `<svg class="btn-spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5" stroke-dasharray="32" stroke-linecap="round" opacity="0.3"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"></path></svg><span>Exporting...</span>`;
+
+      if (overlay) {
+        if (overlayTitle) overlayTitle.textContent = 'Exporting secure PDF...';
+        if (overlayPage) overlayPage.textContent = pageCount > 1 ? `Processing ${pageCount} pages...` : 'Zero server uploads · True vector rasterization';
+        overlay.classList.remove('hidden');
+        void overlay.offsetHeight; // Force reflow
+        overlay.classList.add('active');
+      }
+
+      // 100ms repaint tick so spinner and overlay start smoothly
+      await new Promise(function (resolve) { setTimeout(resolve, 100); });
+
+      let downloadUrl = null;
+
+      try {
+        await loadPdfLibraries();
+        if (!window.PDFLib) throw new Error('PDFLib is unavailable');
+
+        const { PDFDocument } = window.PDFLib;
+        const newPdf = await PDFDocument.create();
+
+        for (let i = 1; i <= pageCount; i++) {
+          if (overlayTitle && pageCount > 1) {
+            overlayTitle.textContent = `Exporting secure PDF (${i}/${pageCount})...`;
+          }
+
+          // Minimal tick so the browser animation thread continues running smoothly
+          await new Promise(function (resolve) { setTimeout(resolve, 10); });
+
+          const page = await pdfDoc.getPage(i);
+          const renderScale = 2.0;
+          const viewport = page.getViewport({ scale: renderScale });
+
+          const offscreenCanvas = document.createElement('canvas');
+          offscreenCanvas.width = viewport.width;
+          offscreenCanvas.height = viewport.height;
+          const ctx = offscreenCanvas.getContext('2d');
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, viewport.width, viewport.height);
+
+          await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+          const pageBoxes = redactions[i] || [];
+          if (pageBoxes.length > 0) {
+            ctx.fillStyle = '#000000';
+            pageBoxes.forEach(function (b) {
+              const rx = (b.x / b.cw) * viewport.width;
+              const ry = (b.y / b.ch) * viewport.height;
+              const rw = (b.w / b.cw) * viewport.width;
+              const rh = (b.h / b.ch) * viewport.height;
+              ctx.fillRect(rx, ry, rw, rh);
+            });
+          }
+
+          // Convert canvas directly to binary JPEG blob (bypassing slow base64 serialization)
+          const jpgBlob = await new Promise(function (resolve, reject) {
+            offscreenCanvas.toBlob(function (blob) {
+              if (blob) resolve(blob);
+              else reject(new Error('Failed to encode JPEG blob'));
+            }, 'image/jpeg', 0.90);
+          });
+          const arrayBuffer = await jpgBlob.arrayBuffer();
+          const jpgImage = await newPdf.embedJpg(new Uint8Array(arrayBuffer));
+
+          // Immediately clean up canvas memory to avoid garbage collection spikes
+          offscreenCanvas.width = 0;
+          offscreenCanvas.height = 0;
+
+          const targetWidth = viewport.width / renderScale;
+          const targetHeight = viewport.height / renderScale;
+          const newPage = newPdf.addPage([targetWidth, targetHeight]);
+          newPage.drawImage(jpgImage, {
+            x: 0,
+            y: 0,
+            width: targetWidth,
+            height: targetHeight
+          });
+        }
+
+        if (overlayTitle) overlayTitle.textContent = 'Finalizing your download...';
+        await new Promise(function (resolve) { setTimeout(resolve, 10); });
+
+        const pdfBytes = await newPdf.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        downloadUrl = URL.createObjectURL(blob);
+        
+        // Create isolated offscreen anchor with zero scroll impact and no focus
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.style.position = 'fixed';
+        a.style.top = '-9999px';
+        a.style.left = '-9999px';
+        a.style.opacity = '0';
+        a.tabIndex = -1;
+        a.setAttribute('aria-hidden', 'true');
+        a.href = downloadUrl;
+        a.download = 'blackout-redacted.pdf';
+        document.body.appendChild(a);
+        
+        // Trigger browser save dialog
+        a.click();
+        document.body.removeChild(a);
+
+        // Lock scroll immediately after click
+        window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+
+        hasDownloaded = true;
+
+        // Ensure browser receives the download intent before transition
+        await new Promise(function (resolve) { setTimeout(resolve, 350); });
+
+        // Fade out workspace loading overlay before displaying celebration modal
+        if (overlay) {
+          overlay.classList.remove('active');
+          await new Promise(function (resolve) { setTimeout(resolve, 200); });
+          overlay.classList.add('hidden');
+        }
+
+        // Open celebration & viral share modal (Step 4) ONLY after download hand-off is complete
+        openShareModal();
+      } catch (err) {
+        console.error('Export flattening error:', err);
+        const errBox = document.getElementById('pdf-error');
+        if (errBox) {
+          errBox.textContent = 'An error occurred while generating the redacted PDF. Please try again.';
+          errBox.classList.remove('hidden');
+        }
+      } finally {
+        if (downloadUrl) {
+          URL.revokeObjectURL(downloadUrl);
+        }
+        if (overlay && !overlay.classList.contains('hidden')) {
+          overlay.classList.remove('active');
+          overlay.classList.add('hidden');
+        }
+        btn.innerHTML = originalHtml;
+        btn.removeAttribute('aria-busy');
+        btn.style.cursor = '';
+        btn.disabled = false;
+
+        // Restore exact scroll position
+        window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+      }
+    }
+
+    window.addEventListener('languagechange', (e) => {
+      if (e.detail && e.detail.dict) {
+        window.__pdfDict = e.detail.dict;
+        const statusPill = document.getElementById('status-pill');
+        if (statusPill) {
+          const key = statusPill.getAttribute('data-i18n') || (currentMode === 'scroll' ? 'modeScrollPill' : (currentStep === 1 ? 'step1Status' : (currentStep === 2 ? 'step2Status' : 'step3Status')));
+          if (e.detail.dict[key]) {
+            statusPill.innerHTML = e.detail.dict[key];
+          }
+        }
+        const shareX = document.getElementById('share-link-x');
+        const shareReddit = document.getElementById('share-link-reddit');
+        if (shareX && e.detail.dict.shareXText) {
+          shareX.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(e.detail.dict.shareXText)}&url=https%3A%2F%2Fredactfree.com&via=thehypewipe`;
+        }
+        if (shareReddit && e.detail.dict.shareRedditTitle) {
+          shareReddit.href = `https://www.reddit.com/submit?url=https%3A%2F%2Fredactfree.com&title=${encodeURIComponent(e.detail.dict.shareRedditTitle)}`;
+        }
+      }
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

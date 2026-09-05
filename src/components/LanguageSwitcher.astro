@@ -1,0 +1,401 @@
+---
+// src/components/LanguageSwitcher.astro
+import { LANGUAGES, defaultLang, type SupportedLocale, ui as TRANSLATIONS } from '../i18n/ui';
+import { getRouteFromUrl, getLocalizedUrl } from '../i18n/utils';
+
+interface Props {
+  currentLang?: SupportedLocale;
+}
+
+const { currentLang = (Astro.currentLocale as SupportedLocale) || defaultLang } = Astro.props;
+const currentRoute = getRouteFromUrl(Astro.url);
+const currentLangConfig = LANGUAGES.find((l) => l.code === currentLang) || LANGUAGES[0];
+---
+
+<div class="lang-switcher-container" id="lang-switcher-root">
+  <!-- Trigger Pill Button -->
+  <button
+    id="lang-switcher-btn"
+    type="button"
+    class="lang-pill-btn"
+    aria-label="Select global language"
+    aria-expanded="false"
+    aria-haspopup="true"
+    title="Choose Language"
+  >
+    <span id="current-lang-flag" class="lang-flag" aria-hidden="true">{currentLangConfig.flag}</span>
+    <span id="current-lang-code" class="lang-code">{currentLangConfig.code.toUpperCase()}</span>
+    <svg class="lang-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+
+  <!-- Floating Dropdown Panel -->
+  <div id="lang-dropdown" class="lang-dropdown hidden" role="menu" aria-orientation="vertical">
+    <div class="lang-dropdown-header">
+      <span class="lang-header-icon">🌍</span>
+      <span class="lang-header-title">GLOBAL LANGUAGES</span>
+    </div>
+
+    <ul class="lang-list" role="list">
+      {LANGUAGES.map((lang) => {
+        const href = getLocalizedUrl(currentRoute, lang.code);
+        const isActive = lang.code === currentLang;
+        return (
+          <li role="none">
+            <a
+              href={href}
+              class:list={['lang-item-btn', { active: isActive }]}
+              role="menuitem"
+              data-lang-code={lang.code}
+              data-lang-flag={lang.flag}
+              data-lang-dir={lang.dir || 'ltr'}
+            >
+              <div class="lang-item-left">
+                <span class="lang-item-flag">{lang.flag}</span>
+                <div class="lang-item-names">
+                  <span class="lang-native-name">{lang.name}</span>
+                  {lang.name !== lang.englishName && (
+                    <span class="lang-english-name">/ {lang.englishName}</span>
+                  )}
+                </div>
+              </div>
+              <span class="lang-item-badge">{lang.code.toUpperCase()}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .lang-switcher-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Trigger Button */
+  .lang-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 32px;
+    padding: 0 10px;
+    background: var(--color-canvas-elevated);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm, 6px);
+    color: var(--color-ink);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .lang-pill-btn:hover {
+    background: var(--color-hairline-soft);
+    border-color: var(--color-mute);
+  }
+
+  .lang-flag {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .lang-code {
+    font-size: 12px;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .lang-chevron {
+    color: var(--color-mute);
+    transition: transform 0.2s ease;
+  }
+
+  .lang-pill-btn[aria-expanded="true"] .lang-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Floating Dropdown */
+  .lang-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 270px;
+    max-height: 380px;
+    background: var(--color-canvas-elevated);
+    border: 1px solid var(--color-hairline);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 6px;
+    animation: dropdownFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes dropdownFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .lang-dropdown.hidden {
+    display: none !important;
+  }
+
+  /* Header inside dropdown */
+  .lang-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px 6px;
+    border-bottom: 1px solid var(--color-hairline-soft);
+    margin-bottom: 4px;
+  }
+
+  .lang-header-icon {
+    font-size: 13px;
+  }
+
+  .lang-header-title {
+    font-size: 11px;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+  }
+
+  /* Language List */
+  .lang-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .lang-item-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--color-ink);
+    cursor: pointer;
+    font-size: 13px;
+    text-align: left;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: background 0.12s ease;
+  }
+
+  .lang-item-btn:hover {
+    background: var(--color-hairline-soft);
+    color: var(--color-ink);
+  }
+
+  .lang-item-btn.active {
+    background: var(--color-hairline-soft);
+    font-weight: 700;
+    border-left: 2.5px solid var(--color-link, #3b82f6);
+  }
+
+  .lang-item-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lang-item-flag {
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .lang-item-names {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lang-native-name {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .lang-english-name {
+    font-size: 11.5px;
+    color: var(--color-mute);
+  }
+
+  .lang-item-badge {
+    font-size: 11px;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-weight: 700;
+    color: var(--color-mute);
+    background: var(--color-hairline-soft);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .lang-item-btn.active .lang-item-badge {
+    color: var(--color-ink);
+    background: var(--color-hairline);
+  }
+
+  /* Scrollbar */
+  .lang-dropdown::-webkit-scrollbar {
+    width: 5px;
+  }
+  .lang-dropdown::-webkit-scrollbar-thumb {
+    background: var(--color-hairline);
+    border-radius: 3px;
+  }
+
+  @media (max-width: 640px) {
+    .lang-dropdown {
+      right: -40px;
+      width: 250px;
+    }
+  }
+</style>
+
+<script is:inline define:vars={{ TRANSLATIONS, LANGUAGES }}>
+  (function () {
+    const root = document.getElementById('lang-switcher-root');
+    const trigger = document.getElementById('lang-switcher-btn');
+    const dropdown = document.getElementById('lang-dropdown');
+    const flagEl = document.getElementById('current-lang-flag');
+    const codeEl = document.getElementById('current-lang-code');
+
+    if (!trigger || !dropdown) return;
+
+    // Detect current language from HTML lang attribute set by SSR, or URL pathname, or fallback
+    function getCurrentLanguage() {
+      const htmlLang = document.documentElement.lang;
+      if (htmlLang && TRANSLATIONS[htmlLang]) return htmlLang;
+
+      const pathParts = window.location.pathname.split('/');
+      const pathLang = pathParts[1];
+      if (pathLang && TRANSLATIONS[pathLang]) return pathLang;
+
+      const stored = localStorage.getItem('pdf_lang');
+      if (stored && TRANSLATIONS[stored]) return stored;
+
+      return 'en';
+    }
+
+    // Apply translations and sync components
+    function applyTranslations(langCode) {
+      const dict = TRANSLATIONS[langCode] || TRANSLATIONS['en'];
+      const langConfig = LANGUAGES.find((l) => l.code === langCode) || LANGUAGES[0];
+
+      // Update pill button
+      if (flagEl) flagEl.textContent = langConfig.flag;
+      if (codeEl) codeEl.textContent = langConfig.code.toUpperCase();
+
+      // Update active state in dropdown
+      document.querySelectorAll('.lang-item-btn').forEach((btn) => {
+        const btnCode = btn.getAttribute('data-lang-code');
+        if (btnCode === langCode) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Update HTML lang and direction
+      document.documentElement.lang = langCode;
+      document.documentElement.dir = langConfig.dir || 'ltr';
+
+      // Update text in data-i18n elements if needed
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.getAttribute('data-i18n');
+        if (key && dict[key] !== undefined) {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.setAttribute('placeholder', dict[key]);
+          } else {
+            el.innerHTML = dict[key];
+          }
+        }
+      });
+
+      // Dispatch event for other components (like PdfEditor)
+      window.dispatchEvent(
+        new CustomEvent('languagechange', {
+          detail: { lang: langCode, dict: dict, config: langConfig }
+        })
+      );
+    }
+
+    // Dropdown Toggle / Close Logic
+    function toggleDropdown() {
+      const isHidden = dropdown.classList.contains('hidden');
+      if (isHidden) {
+        dropdown.classList.remove('hidden');
+        trigger.setAttribute('aria-expanded', 'true');
+      } else {
+        dropdown.classList.add('hidden');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    function closeDropdown() {
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDropdown();
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      if (!root.contains(e.target)) {
+        closeDropdown();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDropdown();
+      }
+    });
+
+    // Language item click: store preferred language in localStorage before link navigation
+    dropdown.addEventListener('click', (e) => {
+      const link = e.target.closest('.lang-item-btn');
+      if (!link) return;
+
+      const selectedCode = link.getAttribute('data-lang-code');
+      if (selectedCode) {
+        localStorage.setItem('pdf_lang', selectedCode);
+      }
+    });
+
+    // Initial setup on boot: ensure editor and elements receive active dictionary
+    const currentLang = getCurrentLanguage();
+    applyTranslations(currentLang);
+  })();
+</script>

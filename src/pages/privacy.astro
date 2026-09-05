@@ -1,0 +1,135 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const lastUpdated = '2026-08-29';
+---
+
+<Layout
+  title="Privacy Policy — PDF Redact Free"
+  description="PDF Redact Free's privacy policy. Learn how our 100% client-side redaction engine protects your documents, alongside our AdSense and Google advertising disclosures."
+  canonical="https://redactfree.com/privacy"
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="container">
+        <p class="mono-eyebrow">Legal & Compliance</p>
+        <h1 class="display-xl page-title">Privacy Policy</h1>
+        <p class="body-md page-date">Last updated: <time datetime={lastUpdated}>{lastUpdated}</time></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container policy-layout">
+        <nav class="policy-nav feature-card" aria-label="Policy sections">
+          <p class="mono-eyebrow" style="margin-bottom:12px;">Contents</p>
+          <ol class="policy-toc">
+            <li><a href="#document-privacy">1. 100% Client-Side Document Privacy</a></li>
+            <li><a href="#technical-architecture">2. How Local Processing Works</a></li>
+            <li><a href="#advertising-cookies">3. Third-Party Advertising &amp; Cookies</a></li>
+            <li><a href="#opt-out">4. How to Opt Out of Personalized Ads</a></li>
+            <li><a href="#third-party-services">5. Third-Party Services</a></li>
+            <li><a href="#local-storage">6. Local Storage Preferences</a></li>
+            <li><a href="#ccpa-gdpr">7. CCPA &amp; GDPR Compliance</a></li>
+            <li><a href="#contact-privacy">8. Contact Information</a></li>
+          </ol>
+        </nav>
+
+        <div class="prose">
+          <h2 id="document-privacy">1. 100% Client-Side Document Privacy Guarantee</h2>
+          <p>PDF Redact Free is architected with a strict <strong>zero-upload, zero-server privacy model</strong> for your documents. When you load a PDF into PDF Redact Free:</p>
+          <ul>
+            <li><strong>Your files never leave your browser:</strong> All document rendering, parsing, and vector-level redaction occur 100% locally in your computer or mobile device's browser memory (RAM) via WebAssembly and JavaScript.</li>
+            <li><strong>Zero server uploads:</strong> We do not operate any backend server or API that receives, processes, or stores your PDF documents.</li>
+            <li><strong>No document retention:</strong> Because your documents are never uploaded to any remote computer, there is no file storage, database, or document cache on our systems.</li>
+            <li><strong>No document inspection:</strong> We cannot see, read, index, or extract any text, financial information, Social Security numbers, or metadata contained within your files.</li>
+          </ul>
+
+          <h2 id="technical-architecture">2. How Local Processing Works</h2>
+          <p>Unlike conventional cloud-based PDF conversion tools that require you to transmit sensitive files over the internet to remote servers, PDF Redact Free operates entirely on client-side technologies:</p>
+          <ul>
+            <li><strong>Mozilla PDF.js:</strong> Compiles and renders your PDF pages directly onto local HTML5 <code>&lt;canvas&gt;</code> elements.</li>
+            <li><strong>pdf-lib:</strong> Executes pure client-side PDF document manipulation in JavaScript, burning solid, opaque black vector rectangles into the document's content stream before triggering a direct local download.</li>
+          </ul>
+          <p>When you close your browser tab or refresh the page, your document in browser memory is immediately discarded.</p>
+
+          <h2 id="advertising-cookies">3. Third-Party Advertising &amp; Cookies (Google AdSense Disclosure)</h2>
+          <p>To keep PDF Redact Free free for everyone without subscriptions or paywalls, we display advertising provided by third-party vendors, including Google.</p>
+          <p>In accordance with Google AdSense policies, please note the following required disclosures:</p>
+          <ul>
+            <li>Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to this website or other websites on the internet.</li>
+            <li>Google's use of advertising cookies (such as the DoubleClick / DART cookie) enables it and its partners to serve ads to users based on their visit to this site and/or other sites on the Internet.</li>
+            <li>These advertising cookies track web browsing activity across participating websites to deliver relevant, interest-based advertisements. <strong>Crucially, advertising cookies never have access to, and cannot read, any PDF documents or sensitive data you redact using PDF Redact Free.</strong></li>
+          </ul>
+
+          <h2 id="opt-out">4. How to Opt Out of Personalized Advertising</h2>
+          <p>You have full control over the cookies used for personalized advertising. You may manage or opt out of personalized interest-based advertising at any time through the following official portals:</p>
+          <ul>
+            <li><strong>Google Ad Settings:</strong> Users may opt out of personalized advertising by visiting <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">https://adssettings.google.com/</a>.</li>
+            <li><strong>Google Advertising Privacy &amp; Terms:</strong> To learn more about how Google uses information from sites that use their services, visit <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">https://policies.google.com/technologies/ads</a>.</li>
+            <li><strong>Network Advertising Initiative (NAI) &amp; Digital Advertising Alliance (DAA):</strong> Users can opt out of a third-party vendor's use of cookies for personalized advertising by visiting <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">https://www.aboutads.info/choices/</a> or <a href="https://optout.networkadvertising.org/" target="_blank" rel="noopener noreferrer">https://optout.networkadvertising.org/</a>.</li>
+          </ul>
+          <p>You may also configure your web browser to block all third-party cookies or alert you when cookies are being sent.</p>
+
+          <h2 id="third-party-services">5. Third-Party Services</h2>
+          <p>We do not collect, store, or transmit your document data. All PDF manipulation runs strictly in your local browser memory. The third-party services loaded on this site are:</p>
+          <ul>
+            <li><strong>Google AdSense / Google Advertising Network:</strong> Delivers contextual advertisements via standard cookies as detailed in Section 3.</li>
+            <li><strong>Google Fonts:</strong> For typography styling.</li>
+            <li><strong>CDNjs / Unpkg:</strong> For loading client-side PDF rendering libraries via secure CDNs.</li>
+          </ul>
+
+          <h2 id="local-storage">6. Local Storage Preferences</h2>
+          <p>We use your browser's <code>localStorage</code> solely to remember your preferred visual theme (Light Mode or Dark Mode). This preference is stored locally on your device only and is never transmitted to any external server.</p>
+
+          <h2 id="ccpa-gdpr">7. CCPA &amp; GDPR Compliance</h2>
+          <p>Under the European Union General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA):</p>
+          <ul>
+            <li><strong>No Sale of Personal Document Data:</strong> We never sell, rent, lease, or monetize your PDF documents, file names, or contents, because we never collect or receive them.</li>
+            <li><strong>Right to Erasure &amp; Access:</strong> Because we do not store user accounts or document records on our servers, there is no personal document data stored on our servers to retrieve or erase.</li>
+          </ul>
+
+          <h2 id="contact-privacy">8. Contact Information</h2>
+          <p>If you have any questions or concerns regarding this Privacy Policy or our compliance practices, please contact us at:</p>
+          <p><strong>Email:</strong> <a href="mailto:hello@redactfree.com?subject=Privacy%20Inquiry">hello@redactfree.com</a></p>
+          <p>We typically review and respond to privacy inquiries within 48 to 72 business hours.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .page-hero {
+    background: var(--color-canvas);
+    padding: var(--space-4xl) 0 var(--space-3xl);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .page-title { color: var(--color-ink); margin: var(--space-md) 0 var(--space-xs); }
+  .page-date { color: var(--color-mute); }
+
+  .policy-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--space-3xl);
+    align-items: start;
+  }
+  .policy-nav {
+    position: sticky;
+    top: 80px;
+  }
+  .policy-toc { padding-left: 20px; }
+  .policy-toc li { margin-bottom: var(--space-sm); font-size: 13px; }
+  .policy-toc a { color: var(--color-body); text-decoration: none; }
+  .policy-toc a:hover { color: var(--color-ink); opacity: 1; }
+
+  @media (max-width: 768px) {
+    .policy-layout { grid-template-columns: 1fr; }
+    .policy-nav { position: static; margin-bottom: var(--space-xl); }
+  }
+</style>

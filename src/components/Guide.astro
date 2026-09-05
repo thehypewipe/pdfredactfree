@@ -1,0 +1,583 @@
+---
+// src/components/Guide.astro — Fully localized SEO Guide, Comparison Table, Checklist, FAQ & TOC Sidebar
+import { defaultLang, type SupportedLocale } from '../i18n/ui';
+import { GUIDE_TRANSLATIONS } from '../i18n/guide';
+
+interface Props {
+  currentLang?: SupportedLocale;
+}
+
+const { currentLang = (Astro.currentLocale as SupportedLocale) || defaultLang } = Astro.props;
+const guide = GUIDE_TRANSLATIONS[currentLang] || GUIDE_TRANSLATIONS['en'];
+const isRtl = currentLang === 'ar';
+---
+
+<section class:list={['section', 'content-section', 'min-w-0', 'max-w-full', 'overflow-hidden', { 'is-rtl': isRtl }]} id="how-to" aria-labelledby="howto-heading" dir={isRtl ? 'rtl' : 'ltr'}>
+  <div class="guide-container min-w-0 max-w-full overflow-hidden px-4 py-8 sm:px-6 md:px-10 max-w-4xl mx-auto">
+    <div class="content-grid grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-8 min-w-0 max-w-full">
+      <article class="content-main prose min-w-0 max-w-full overflow-hidden">
+
+        <!-- 1. Header & Intro -->
+        <p class="mono-eyebrow guide-eyebrow break-words">{guide.eyebrow}</p>
+        <h2 id="howto-heading" class="heading-lg guide-main-title break-words">{guide.title}</h2>
+        <p class="guide-intro break-words">{guide.intro}</p>
+
+        <!-- 2. Educational Callout: The Black Highlighter Trap -->
+        <div class="callout callout-warning w-full max-w-full p-4 rounded-xl border" role="alert">
+          <div class="callout-icon" aria-hidden="true">⚠️</div>
+          <div class="callout-body break-words">
+            <strong>{guide.calloutTitle}:</strong> {guide.calloutText}
+          </div>
+        </div>
+
+        <!-- 3. Step-by-Step Guide -->
+        <h3 class="heading-md break-words" id="guide-steps">{guide.stepsTitle}</h3>
+        <ol class="steps-list break-words">
+          {guide.steps.map((step, idx) => (
+            <li class="break-words">
+              <strong>{step.title}:</strong> {step.desc}
+            </li>
+          ))}
+        </ol>
+
+        <!-- 4. Vector Redaction vs. Visual Overlays Comparison Table -->
+        <h3 class="heading-md break-words" id="guide-comparison">{guide.tableTitle}</h3>
+        <div class="table-wrap w-full overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 my-6 pb-2 border-b border-zinc-100 dark:border-zinc-800/50">
+          <table class="comparison-table min-w-[580px] w-full text-left">
+            <thead>
+              <tr>
+                {guide.tableHeaders.map((header) => (
+                  <th scope="col" class="break-words">{header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {guide.tableRows.map((row) => (
+                <tr>
+                  <td class="break-words"><strong>{row[0]}</strong></td>
+                  <td><span class="badge-good">{row[1]}</span></td>
+                  <td>
+                    {row[2].includes('No') || row[2].includes('Non') || row[2].includes('Nein') || row[2].includes('Não') || row[2].includes('नहीं') || row[2].includes('いいえ') || row[2].includes('否') || row[2].includes('لا') ? (
+                      <span class="badge-bad">{row[2]}</span>
+                    ) : (
+                      <span class="break-words">{row[2]}</span>
+                    )}
+                  </td>
+                  <td>
+                    {row[3].includes('$') || row[3].includes('€') || row[3].includes('R$') || row[3].includes('₹') || row[3].includes('円') || row[3].includes('¥') || row[3].includes('دولار') || row[3].includes('₽') || row[3].includes('원') || row[3].includes('Account') || row[3].includes('cuenta') || row[3].includes('Compte') || row[3].includes('Konto') || row[3].includes('conta') || row[3].includes('खाता') || row[3].includes('登録') || row[3].includes('账户') || row[3].includes('حساب') ? (
+                      <span class="badge-bad">{row[3]}</span>
+                    ) : (
+                      <span class="badge-good">{row[3]}</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 5. Sensitive Data Checklist -->
+        <h3 class="heading-md break-words" id="guide-checklist">{guide.checklistTitle}</h3>
+        <ul class="checklist break-words">
+          {guide.checklist.map((item) => (
+            <li class="break-words">
+              <strong>{item.title}:</strong> {item.desc}
+            </li>
+          ))}
+        </ul>
+
+        <!-- 6. Frequently Asked Questions (FAQ) -->
+        <h3 class="heading-md break-words" id="guide-faq">{guide.faqTitle}</h3>
+        <div class="faq-list w-full max-w-full">
+          {guide.faqList.map((item, i) => (
+            <details class="faq-item w-full overflow-hidden" id={`faq-guide-${i + 1}`}>
+              <summary class="faq-q w-full flex items-center justify-between p-4 text-left">
+                <span class="break-words">{item.q}</span>
+              </summary>
+              <div class="faq-a">
+                <p class="break-words">{item.a}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+
+      </article>
+
+      <!-- 7. Sticky Sidebar & TOC -->
+      <aside class="content-aside hidden lg:block" aria-label="Page contents">
+        <div class="aside-card">
+          <p class="aside-title">{guide.toc.title}</p>
+          <ul class="aside-nav" role="list">
+            <li><a href="#editor">{guide.toc.tool}</a></li>
+            <li><a href="#guide-steps">{guide.toc.guide}</a></li>
+            <li><a href="#guide-comparison">{guide.toc.comparison}</a></li>
+            <li><a href="#guide-checklist">{guide.toc.checklist}</a></li>
+            <li><a href="#guide-faq">{guide.toc.faq}</a></li>
+          </ul>
+          <div class="aside-cta">
+            <p class="aside-cta-text">{guide.toc.ctaTitle}</p>
+            <a href="#editor" class="btn-primary aside-btn">{guide.toc.ctaBtn}</a>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Content Section */
+  .content-section {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    background: var(--color-canvas);
+    border-top: 1px solid var(--color-hairline);
+    padding: var(--space-3xl) 0;
+  }
+
+  .guide-container {
+    min-width: 0;
+    max-width: 56rem; /* max-w-4xl */
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 2rem 1rem; /* px-4 py-8 */
+  }
+
+  @media (min-width: 640px) {
+    .guide-container {
+      padding-left: 1.5rem; /* sm:px-6 */
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .guide-container {
+      padding-left: 2.5rem; /* md:px-10 */
+      padding-right: 2.5rem;
+    }
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem; /* gap-8 */
+    align-items: start;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    .content-grid {
+      grid-template-columns: 1fr 260px; /* lg:grid-cols-[1fr_260px] */
+    }
+  }
+
+  .content-main {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Word break rules to prevent mobile blowout */
+  .break-words,
+  .guide-main-title,
+  .guide-intro,
+  .prose h2,
+  .prose h3,
+  .prose p,
+  .steps-list,
+  .steps-list li,
+  .checklist,
+  .checklist li,
+  .comparison-table th,
+  .comparison-table td,
+  .callout-body,
+  .faq-q,
+  .faq-a,
+  .faq-a p {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* Prose typography */
+  .guide-eyebrow {
+    margin-bottom: var(--space-xs);
+    color: var(--color-mute);
+  }
+
+  .guide-main-title {
+    margin-top: 0;
+    margin-bottom: var(--space-md);
+    line-height: 1.25;
+  }
+
+  .prose h2 {
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .prose h3 {
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-sm);
+    color: var(--color-ink);
+    scroll-margin-top: 80px;
+  }
+
+  .prose p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-body);
+    margin-bottom: var(--space-md);
+  }
+  :global([data-theme="dark"]) .prose p {
+    color: #d4d4d8;
+  }
+
+  /* Callout */
+  .callout {
+    display: flex;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border-width: 1px;
+    border-style: solid;
+    margin: var(--space-lg) 0 var(--space-xl);
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+
+  .callout-warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+  }
+  :global([data-theme="dark"]) .callout-warning {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.25);
+    color: #fbbf24;
+  }
+
+  .callout-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+
+  .callout-body {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .callout-body strong {
+    color: inherit;
+    font-weight: 700;
+  }
+
+  .steps-list {
+    padding-left: var(--space-lg);
+    padding-right: 0;
+    margin-bottom: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .steps-list li {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--color-body);
+  }
+  :global([data-theme="dark"]) .steps-list li {
+    color: #d4d4d8;
+  }
+  .steps-list strong {
+    color: var(--color-ink);
+  }
+
+  /* Table Blowout Prevention */
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f4f4f5;
+  }
+  :global([data-theme="dark"]) .table-wrap {
+    border-bottom-color: rgba(39, 39, 42, 0.5);
+  }
+
+  @media (max-width: 639px) {
+    .table-wrap {
+      margin-left: -1rem;
+      margin-right: -1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+  @media (min-width: 640px) {
+    .table-wrap {
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  .comparison-table {
+    min-width: 580px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    text-align: left;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .comparison-table th {
+    background: var(--color-canvas-subtle);
+    font-weight: 600;
+    color: var(--color-ink);
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .comparison-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .badge-good {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background: #ecfdf5;
+    color: #065f46;
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  :global([data-theme="dark"]) .badge-good {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+  }
+
+  .badge-bad {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background: #fef2f2;
+    color: #991b1b;
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  :global([data-theme="dark"]) .badge-bad {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+  }
+
+  .checklist {
+    padding-left: var(--space-lg);
+    padding-right: 0;
+    margin-bottom: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .checklist li {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--color-body);
+  }
+  :global([data-theme="dark"]) .checklist li {
+    color: #d4d4d8;
+  }
+  .checklist strong {
+    color: var(--color-ink);
+  }
+
+  /* FAQ Accordion */
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .faq-item {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-canvas);
+  }
+
+  .faq-q {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--color-ink);
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.15s ease;
+    user-select: none;
+  }
+  .faq-q::-webkit-details-marker { display: none; }
+  .faq-q::after {
+    content: "+";
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--color-mute);
+    margin-left: var(--space-sm);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  .faq-item[open] .faq-q::after {
+    content: "−";
+  }
+  .faq-q:hover {
+    background: var(--color-hairline-soft);
+  }
+
+  .faq-a {
+    padding: 0 1rem 1rem;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--color-body);
+    min-width: 0;
+    max-width: 100%;
+  }
+  :global([data-theme="dark"]) .faq-a {
+    color: #d4d4d8;
+  }
+
+  /* Aside (Hidden on mobile, block on lg) */
+  .content-aside {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .content-aside {
+      display: block;
+      position: sticky;
+      top: 76px;
+    }
+  }
+
+  .aside-card {
+    background: var(--color-canvas-subtle);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+  }
+
+  .aside-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'Geist Mono', monospace;
+    color: var(--color-ink);
+    margin-bottom: var(--space-md);
+  }
+
+  .aside-nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+    padding: 0;
+  }
+
+  .aside-nav a {
+    font-size: 13.5px;
+    color: var(--color-body);
+    text-decoration: none;
+    transition: color 0.15s ease;
+    display: block;
+    padding: 3px 0;
+  }
+  :global([data-theme="dark"]) .aside-nav a {
+    color: #e4e4e7;
+  }
+  .aside-nav a:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+
+  .aside-cta {
+    border-top: 1px solid var(--color-hairline);
+    padding-top: var(--space-md);
+  }
+
+  .aside-cta-text {
+    font-size: 13px;
+    color: var(--color-mute);
+    margin-bottom: var(--space-xs);
+  }
+
+  .aside-btn {
+    width: 100%;
+    justify-content: center;
+    font-size: 13px;
+    padding: 0 var(--space-md);
+    height: 36px;
+  }
+
+  /* ------------------------------------------- */
+  /* RTL Layout for Arabic (/ar/)               */
+  /* ------------------------------------------- */
+  .is-rtl {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .is-rtl .steps-list,
+  .is-rtl .checklist {
+    padding-left: 0;
+    padding-right: var(--space-lg);
+  }
+
+  .is-rtl .comparison-table {
+    text-align: right;
+  }
+
+  .is-rtl .faq-q {
+    text-align: right;
+  }
+
+  .is-rtl .faq-q::after {
+    margin-left: 0;
+    margin-right: var(--space-sm);
+  }
+
+  .is-rtl .aside-nav {
+    padding-right: 0;
+  }
+</style>

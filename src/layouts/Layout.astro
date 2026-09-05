@@ -1,0 +1,183 @@
+---
+// Layout.astro — Base layout with full SEO meta tags, Geist fonts, design tokens
+import { LANGUAGES, defaultLang, type SupportedLocale } from '../i18n/ui';
+import { getRouteFromUrl, getLocalizedUrl } from '../i18n/utils';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+  ogType?: string;
+  injectFaqSchema?: boolean;
+  faqSchema?: string;
+  lang?: SupportedLocale;
+  dir?: 'ltr' | 'rtl';
+}
+
+const {
+  title = 'Redact PDF Online Free — No Sign Up | PDF Redact Free',
+  description = 'Redact PDF online for free with no sign up. Permanently black out text, SSNs, bank details, and addresses with true vector redaction. 100% private — files never leave your browser.',
+  canonical: explicitCanonical,
+  ogImage = 'https://redactfree.com/og-image.png',
+  ogType = 'website',
+  injectFaqSchema = false,
+  faqSchema = '',
+  lang = (Astro.currentLocale as SupportedLocale) || 'en',
+  dir = lang === 'ar' ? 'rtl' : 'ltr',
+} = Astro.props;
+
+const siteBase = 'https://redactfree.com';
+const currentRoute = getRouteFromUrl(Astro.url);
+
+const canonical = explicitCanonical || (
+  lang === defaultLang
+    ? `${siteBase}${currentRoute === '/' ? '/' : currentRoute}`
+    : `${siteBase}/${lang}${currentRoute === '/' ? '/' : currentRoute}`
+);
+
+const hreflangAlternates = LANGUAGES.map(l => ({
+  code: l.code,
+  href: `${siteBase}${getLocalizedUrl(currentRoute, l.code)}`
+}));
+const xDefaultHref = `${siteBase}${getLocalizedUrl(currentRoute, defaultLang)}`;
+
+import { GUIDE_TRANSLATIONS } from '../i18n/guide';
+
+const guideForSchema = GUIDE_TRANSLATIONS[lang] || GUIDE_TRANSLATIONS['en'];
+const faqJsonLd = faqSchema || JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": guideForSchema.faqList.map(item => ({
+    "@type": "Question",
+    "name": item.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.a
+    }
+  }))
+});
+---
+
+<!DOCTYPE html>
+<html lang={lang} dir={dir}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="theme-color" content="#000000" />
+
+  <!-- Primary Meta -->
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <!-- Hreflang Alternates (SEO) -->
+  {hreflangAlternates.map(alt => (
+    <link rel="alternate" hreflang={alt.code} href={alt.href} />
+  ))}
+  <link rel="alternate" hreflang="x-default" href={xDefaultHref} />
+
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="PDF Redact Free" />
+
+  <!-- Preconnect & Asynchronous Non-Blocking Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" />
+  </noscript>
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={ogType} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content="PDF Redact Free" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <!-- Favicons & Manifest -->
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="PDFREDACT" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Sitemap -->
+  <link rel="sitemap" href="/sitemap.xml" />
+
+  <!-- FAQ JSON-LD Schema -->
+  {injectFaqSchema && (
+    <script type="application/ld+json" set:html={faqJsonLd} />
+  )}
+
+  <!-- Localized SoftwareApplication Schema for Google Rich Snippets -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": title,
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "All (Web Browser)",
+    "browserRequirements": "Requires a modern web browser (Chrome, Firefox, Safari, Edge)",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": canonical,
+    "description": description,
+    "inLanguage": lang
+  })} />
+
+  <!-- WebSite Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "PDF Redact Free",
+    "url": "https://redactfree.com",
+    "description": "Free online PDF redaction tool — permanently black out sensitive text with zero server uploads.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://redactfree.com/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DGQQHYVBJ4"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-DGQQHYVBJ4');
+  </script>
+
+  <!-- Fast Theme Flicker-Prevention Script -->
+  <script is:inline>
+    const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  </script>
+</head>
+<body>
+  <slot />
+</body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>

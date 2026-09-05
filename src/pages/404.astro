@@ -1,0 +1,90 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Page Not Found — PDF Redact Free"
+  description="The page you're looking for doesn't exist. Return to PDF Redact Free to redact your PDF for free."
+  canonical="https://redactfree.com/404"
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="not-found-section">
+      <div class="container not-found-content">
+        <p class="mono-eyebrow not-found-code">404</p>
+        <h1 class="display-xl not-found-title">Page not found</h1>
+        <p class="body-lg not-found-sub">
+          The page you're looking for doesn't exist or has been moved.
+        </p>
+        <div class="not-found-actions">
+          <a href="/" class="btn-primary">Back to PDF Redact Free</a>
+          <a href="/about" class="btn-secondary">About</a>
+        </div>
+
+        <div class="not-found-grid">
+          <a href="/" class="not-found-card feature-card">
+            <p class="mono-eyebrow" style="margin-bottom:8px;">Tool</p>
+            <p class="heading-md">Redact PDF</p>
+            <p class="body-md" style="color:var(--color-mute);margin-top:4px;">Free PDF blackout tool</p>
+          </a>
+          <a href="/about" class="not-found-card feature-card">
+            <p class="mono-eyebrow" style="margin-bottom:8px;">About</p>
+            <p class="heading-md">About Us</p>
+            <p class="body-md" style="color:var(--color-mute);margin-top:4px;">How the tool works</p>
+          </a>
+          <a href="/privacy" class="not-found-card feature-card">
+            <p class="mono-eyebrow" style="margin-bottom:8px;">Legal</p>
+            <p class="heading-md">Privacy Policy</p>
+            <p class="body-md" style="color:var(--color-mute);margin-top:4px;">Zero data collection</p>
+          </a>
+          <a href="/contact" class="not-found-card feature-card">
+            <p class="mono-eyebrow" style="margin-bottom:8px;">Support</p>
+            <p class="heading-md">Contact</p>
+            <p class="body-md" style="color:var(--color-mute);margin-top:4px;">Get in touch</p>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .not-found-section {
+    background: var(--color-canvas);
+    min-height: calc(100vh - 56px - 200px);
+    display: flex;
+    align-items: center;
+    padding: var(--space-4xl) 0;
+  }
+  .not-found-content { width: 100%; }
+  .not-found-code { margin-bottom: var(--space-md); font-size: 11px; }
+  .not-found-title { color: var(--color-ink); margin-bottom: var(--space-md); }
+  .not-found-sub { color: var(--color-body); max-width: 400px; margin-bottom: var(--space-xl); }
+  .not-found-actions { display: flex; gap: var(--space-md); flex-wrap: wrap; margin-bottom: var(--space-3xl); }
+  .not-found-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+  }
+  .not-found-card {
+    text-decoration: none;
+    display: block;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .not-found-card:hover {
+    box-shadow: var(--shadow-float);
+    transform: translateY(-1px);
+    opacity: 1;
+  }
+  @media (max-width: 768px) {
+    .not-found-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .not-found-grid { grid-template-columns: 1fr; }
+  }
+</style>

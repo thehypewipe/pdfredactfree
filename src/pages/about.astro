@@ -1,0 +1,155 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="About PDF Redact Free — Private, Free PDF Redaction Technology"
+  description="PDF Redact Free is a free, 100% client-side PDF redaction tool. Learn how our local processing technology keeps your documents completely private — zero server uploads, zero cloud storage."
+  canonical="https://redactfree.com/about"
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="container">
+        <p class="mono-eyebrow">About</p>
+        <h1 class="display-xl page-title">Privacy-First PDF Redaction</h1>
+        <p class="body-lg page-sub">We built PDF Redact Free because everyone deserves professional-grade document redaction without uploading sensitive files to a stranger's server.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container content-grid">
+
+        <div class="prose">
+          <h2>Our Mission</h2>
+          <p>PDF Redact Free exists for one reason: <strong>to make true, permanent PDF redaction accessible to everyone, for free, without privacy trade-offs</strong>.</p>
+          <p>Every week, people share bank statements, tax forms, Social Security documents, and medical records after attempting to "redact" them with black highlighters or annotation layers — methods that leave the underlying data fully recoverable. At the same time, commercial tools that do proper redaction (Adobe Acrobat Pro, Nuance Power PDF, Foxit PhantomPDF) cost hundreds of dollars per year.</p>
+          <p>We fixed that. PDF Redact Free is free, requires no account, and runs entirely inside your web browser.</p>
+
+          <h2>How Our Technology Works</h2>
+          <p>PDF Redact Free is built on powerful open-source JavaScript and WebAssembly libraries:</p>
+          <ul>
+            <li><strong>Mozilla PDF.js:</strong> Renders your PDF pages directly to HTML5 canvas elements inside the browser, with full fidelity to the original document layout.</li>
+            <li><strong>pdf-lib:</strong> Modifies the PDF document structure directly, burning permanent opaque black rectangles into the content stream at the precise coordinates you specify.</li>
+          </ul>
+          <p>When you drop a PDF into our tool:</p>
+          <ul>
+            <li>The file is read into your device's browser memory (RAM) as a local <code>ArrayBuffer</code>.</li>
+            <li>PDF.js renders it to canvas — completely locally.</li>
+            <li>When you draw a redaction box, we record the exact canvas coordinates.</li>
+            <li>On export, we use a coordinate inversion formula to convert canvas pixel coordinates to PDF user-space coordinates (PDF coordinates originate at the bottom-left, while HTML5 canvas originates at the top-left).</li>
+            <li>pdf-lib draws permanent black vector rectangles at those coordinates in the PDF's content stream.</li>
+            <li>The resulting redacted PDF bytes are downloaded directly to your device.</li>
+          </ul>
+          <p>At no point does any byte of your document travel to an external server. There is no cloud storage, no backend database, and no server queue. Your files stay strictly in your local browser memory.</p>
+
+          <h2>The Privacy &amp; Sustainability Model</h2>
+          <p>Most online PDF tools upload your file to their servers, process it remotely, and let you download the result. This means your sensitive document — with all its private information intact — has been transmitted across the internet and temporarily hosted on someone else's hardware.</p>
+          <p>PDF Redact Free eliminates this risk by design. Because all document processing is executed locally on your device, we have no server processing costs for files. To keep the service 100% free and sustainable without charging user subscriptions, we display standard web advertising managed by third-party partners like Google. These advertising systems only operate at the web page level and can never see, access, or read your PDF documents.</p>
+
+          <h2>Who We're For</h2>
+          <p>PDF Redact Free is built for anyone who needs to share a PDF safely:</p>
+          <ul>
+            <li>Individuals sharing bank statements for loan or rental applications</li>
+            <li>Freelancers and contractors redacting client details before sharing invoices</li>
+            <li>Journalists and researchers protecting sources in document scans</li>
+            <li>HR professionals redacting salary or SSN information from shared forms</li>
+            <li>Legal professionals preparing documents for public filing</li>
+            <li>Anyone sharing tax documents (W-2, 1099, 1040) with sensitive numbers hidden</li>
+          </ul>
+        </div>
+
+        <div class="about-sidebar">
+          <div class="feature-card">
+            <p class="mono-eyebrow" style="margin-bottom:12px;">Technology Stack</p>
+            <ul class="tech-list">
+              <li><span class="tech-dot"></span><strong>PDF.js</strong> — Mozilla's PDF rendering engine</li>
+              <li><span class="tech-dot"></span><strong>pdf-lib</strong> — Pure JS PDF manipulation</li>
+              <li><span class="tech-dot"></span><strong>Astro.js</strong> — Static site framework</li>
+              <li><span class="tech-dot"></span><strong>HTML5 Canvas</strong> — In-browser rendering</li>
+              <li><span class="tech-dot"></span><strong>WebAssembly</strong> — PDF.js worker threading</li>
+            </ul>
+          </div>
+
+          <div class="feature-card" style="margin-top:16px;">
+            <p class="mono-eyebrow" style="margin-bottom:12px;">Privacy Guarantees</p>
+            <ul class="guarantee-list">
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Zero server uploads
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Zero cloud document storage
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Zero registration or accounts
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Zero file retention
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Open-source libraries
+              </li>
+              <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                100% Free forever
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="container" style="text-align:center;">
+        <h2 class="heading-lg" style="margin-bottom:12px;">Ready to redact your PDF?</h2>
+        <p class="body-lg" style="color:var(--color-body);margin-bottom:24px;">Free, private, permanent. No account needed.</p>
+        <a href="/" class="btn-primary">Open PDF Redact Free</a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .page-hero {
+    background: var(--color-canvas);
+    padding: var(--space-4xl) 0 var(--space-3xl);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .page-title { color: var(--color-ink); margin: var(--space-md) 0; }
+  .page-sub { color: var(--color-body); max-width: 560px; }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: var(--space-3xl);
+    align-items: start;
+  }
+
+  .tech-list, .guarantee-list { list-style: none; display: flex; flex-direction: column; gap: var(--space-sm); }
+  .tech-list li, .guarantee-list li {
+    display: flex; align-items: center; gap: var(--space-sm);
+    font-size: 13px; color: var(--color-body);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--color-hairline-soft);
+  }
+  .tech-list li:last-child, .guarantee-list li:last-child { border-bottom: none; padding-bottom: 0; }
+  .tech-dot { width: 6px; height: 6px; background: var(--color-ink); border-radius: 50%; flex-shrink: 0; }
+  .guarantee-list svg { color: var(--color-ink); flex-shrink: 0; }
+
+  .cta-band { background: var(--color-canvas); padding: var(--space-4xl) 0; border-top: 1px solid var(--color-hairline); }
+
+  @media (max-width: 768px) {
+    .content-grid { grid-template-columns: 1fr; }
+  }
+</style>

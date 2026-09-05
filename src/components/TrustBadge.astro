@@ -1,0 +1,89 @@
+---
+// TrustBadge.astro — Prominent privacy trust banner
+import { defaultLang, type SupportedLocale } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  currentLang?: SupportedLocale;
+}
+
+const { currentLang = (Astro.currentLocale as SupportedLocale) || defaultLang } = Astro.props;
+const t = useTranslations(currentLang);
+---
+
+<div class="trust-badge" role="note" aria-label="Privacy guarantee">
+  <div class="trust-inner">
+    <span class="trust-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </span>
+    <div class="trust-text">
+      <strong data-i18n="trustPrivate">{t('trustPrivate')}</strong>
+      <span class="trust-sep" aria-hidden="true">·</span>
+      <span data-i18n="trustNeverLeave">{t('trustNeverLeave')}</span>
+      <span class="trust-sep" aria-hidden="true">·</span>
+      <span data-i18n="trustZeroUploads">{t('trustZeroUploads')}</span>
+      <span class="trust-sep" aria-hidden="true">·</span>
+      <span data-i18n="trustNoAccount">{t('trustNoAccount')}</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .trust-badge {
+    background: var(--color-canvas-elevated);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) var(--space-lg);
+    margin-bottom: var(--space-lg);
+    box-shadow: var(--shadow-whisper);
+  }
+
+  .trust-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .trust-icon {
+    color: var(--color-ink);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .trust-text {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-body);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  :global([data-theme="dark"]) .trust-text {
+    color: #e4e4e7;
+  }
+
+  .trust-text strong {
+    color: var(--color-ink);
+    font-weight: 700;
+  }
+
+  .trust-sep {
+    color: var(--color-hairline);
+    font-weight: 400;
+  }
+  :global([data-theme="dark"]) .trust-sep {
+    color: #3f3f46;
+  }
+
+  @media (max-width: 640px) {
+    .trust-text { flex-direction: column; gap: var(--space-xxs); text-align: center; }
+    .trust-sep { display: none; }
+  }
+</style>

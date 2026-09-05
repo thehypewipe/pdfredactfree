@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Disallow no pages — everything is public
+
+Sitemap: https://redactfree.com/sitemap.xml

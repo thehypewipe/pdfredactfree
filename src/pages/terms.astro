@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const lastUpdated = '2026-08-29';
+---
+
+<Layout
+  title="Terms of Service — PDF Redact Free"
+  description="Terms of Service for PDF Redact Free. Free PDF redaction tool. Read our terms covering permitted use, disclaimers, and limitations of liability."
+  canonical="https://redactfree.com/terms"
+>
+  <Header />
+
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="container">
+        <p class="mono-eyebrow">Legal</p>
+        <h1 class="display-xl page-title">Terms of Service</h1>
+        <p class="body-md page-date">Last updated: <time datetime={lastUpdated}>{lastUpdated}</time></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container" style="max-width:760px;">
+        <div class="prose">
+
+          <h2>1. Acceptance of Terms</h2>
+          <p>By accessing and using PDF Redact Free ("the Service") at redactfree.com, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
+
+          <h2>2. Description of Service</h2>
+          <p>PDF Redact Free provides a free, client-side web application for redacting PDF documents. All document processing occurs entirely within your web browser. The Service does not upload, store, or transmit your files to any server.</p>
+
+          <h2>3. Permitted Use</h2>
+          <p>You may use the Service for any lawful purpose, including:</p>
+          <ul>
+            <li>Redacting personal information from documents before sharing</li>
+            <li>Removing sensitive financial or medical data from PDFs</li>
+            <li>Preparing legal documents for public filing</li>
+            <li>Personal, commercial, or professional document processing</li>
+          </ul>
+
+          <h2>4. Prohibited Use</h2>
+          <p>You may not use the Service to:</p>
+          <ul>
+            <li>Alter, falsify, or forge official documents in violation of applicable law</li>
+            <li>Tamper with evidence or court documents</li>
+            <li>Facilitate fraud or deception</li>
+            <li>Engage in any illegal activity</li>
+          </ul>
+
+          <h2>5. Intellectual Property</h2>
+          <p>The Service is built on open-source libraries (PDF.js, pdf-lib) under their respective licenses. The PDF Redact Free brand, design, and original code are our intellectual property. Documents you process remain entirely your property — we never access or acquire any rights to them.</p>
+
+          <h2>6. Disclaimer of Warranties</h2>
+          <p>THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR THAT REDACTION WILL BE PERFECT IN EVERY CIRCUMSTANCE. YOU SHOULD VERIFY ALL REDACTIONS BEFORE SHARING ANY SENSITIVE DOCUMENT.</p>
+          <p><strong>Always review your redacted PDF before distribution.</strong> Open the downloaded file to confirm that all sensitive areas are properly obscured.</p>
+
+          <h2>7. Limitation of Liability</h2>
+          <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, PDF REDACT FREE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF DATA, ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE.</p>
+
+          <h2>8. Modifications to Service</h2>
+          <p>We reserve the right to modify, suspend, or discontinue the Service at any time without notice. We will not be liable to you or any third party for any modification, suspension, or discontinuation of the Service.</p>
+
+          <h2>9. Governing Law</h2>
+          <p>These Terms shall be governed by applicable law. Any disputes shall be resolved in the applicable courts of competent jurisdiction.</p>
+
+          <h2>10. Changes to Terms</h2>
+          <p>We may update these Terms from time to time. Continued use of the Service following any changes constitutes your acceptance of the new Terms. The "Last updated" date at the top of this page indicates when the Terms were most recently revised.</p>
+
+          <h2>11. Contact</h2>
+          <p>For questions about these Terms, email us at <a href="mailto:hello@redactfree.com?subject=Legal%20Inquiry">hello@redactfree.com</a>.</p>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .page-hero {
+    background: var(--color-canvas);
+    padding: var(--space-4xl) 0 var(--space-3xl);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .page-title { color: var(--color-ink); margin: var(--space-md) 0 var(--space-xs); }
+  .page-date { color: var(--color-mute); }
+</style>

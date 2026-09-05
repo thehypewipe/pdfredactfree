@@ -1,0 +1,169 @@
+---
+// Footer.astro — Multi-column footer with Vercel Geist aesthetic
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="/" class="footer-wordmark" aria-label="PDF Redact Free Home">
+        <svg class="footer-wordmark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" aria-hidden="true">
+          <rect width="32" height="32" rx="7" fill="#ffffff"/>
+          <rect x="6" y="13" width="20" height="6" rx="2" fill="#000000"/>
+        </svg>
+        <span>PDF Redact Free</span>
+      </a>
+      <p class="footer-tagline">Redact PDF files privately in your browser.<br/>Zero uploads. Zero storage. Zero cost.</p>
+    </div>
+
+    <nav class="footer-cols" aria-label="Footer navigation">
+      <div class="footer-col">
+        <h3 class="footer-col-title">Tool</h3>
+        <ul>
+          <li><a href="/#editor">Redact PDF</a></li>
+          <li><a href="/#how-to">How It Works</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3 class="footer-col-title">Company</h3>
+        <ul>
+          <li><a href="/about">About</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3 class="footer-col-title">Resources</h3>
+        <ul>
+          <li><a href="/#how-to">How to Redact PDF</a></li>
+          <li><a href="/#how-to">Mac &amp; Windows Guide</a></li>
+          <li><a href="/sitemap.xml">Sitemap</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container footer-bottom-inner">
+      <p class="footer-copy">© {year} PDF Redact Free. All rights reserved.</p>
+      <p class="footer-trust">🔒 100% Client-Side · Files never leave your browser</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-canvas);
+    border-top: 1px solid var(--color-hairline);
+    margin-top: var(--space-3xl);
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-3xl);
+    padding-top: var(--space-3xl);
+    padding-bottom: var(--space-3xl);
+  }
+
+  .footer-wordmark {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink);
+    text-decoration: none;
+    letter-spacing: -0.3px;
+    margin-bottom: var(--space-md);
+  }
+  .footer-wordmark-icon {
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+    border-radius: 5px;
+  }
+
+  .footer-tagline {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--color-body);
+    max-width: 260px;
+  }
+  :global([data-theme="dark"]) .footer-tagline {
+    color: #d4d4d8;
+  }
+
+  .footer-cols {
+    display: flex;
+    gap: var(--space-3xl);
+  }
+
+  .footer-col h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'Geist Mono', monospace;
+    margin-bottom: var(--space-md);
+  }
+
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: var(--space-sm); }
+  .footer-col a {
+    font-size: 13.5px;
+    color: var(--color-body);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  :global([data-theme="dark"]) .footer-col a {
+    color: #e4e4e7;
+  }
+  .footer-col a:hover { color: var(--color-ink); opacity: 1; text-decoration: underline; }
+
+  .footer-bottom {
+    border-top: 1px solid var(--color-hairline);
+  }
+  .footer-bottom-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-lg);
+    padding-bottom: var(--space-lg);
+  }
+  .footer-copy {
+    font-size: 13px;
+    color: var(--color-body);
+    font-weight: 500;
+  }
+  :global([data-theme="dark"]) .footer-copy {
+    color: #d4d4d8;
+  }
+
+  .footer-trust {
+    font-size: 13px;
+    color: var(--color-body);
+    font-weight: 500;
+  }
+  :global([data-theme="dark"]) .footer-trust {
+    color: #d4d4d8;
+  }
+
+  @media (max-width: 768px) {
+    .footer-inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-2xl);
+    }
+    .footer-cols {
+      gap: var(--space-xl);
+      flex-wrap: wrap;
+    }
+    .footer-bottom-inner {
+      flex-direction: column;
+      gap: var(--space-xs);
+      text-align: center;
+    }
+  }
+</style>
